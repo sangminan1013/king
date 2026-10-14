@@ -1,13 +1,10 @@
-# figma-make-app
+# King
 
-React + Vite + Tailwind CSS project running inside Figma Make.
+React + Vite + Tailwind CSS web prototype at the repository root, with a separate Flutter prototype in `flutter_app/`. Originally exported from Figma Make.
 
 ## Development Server
 
-A Vite development server is **already running** on `$PORT` (default 8443). You don't need to start it manually.
-
-- Preview URL: The user can access the running app through the preview panel
-- Hot reload: Changes to source files are reflected immediately
+No development server is assumed to be running locally. Run `corepack pnpm install --frozen-lockfile` and `corepack pnpm dev` from the repository root. The default port is 8443 (override with `PORT`).
 
 ## Project Structure
 
@@ -19,7 +16,8 @@ This is the canonical project structure. Start with task-relevant files below. O
 - `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
 - `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
 - `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and Figma Make plugins plus the `@` alias for `src`
-- `.mise.toml` - Toolchain versions for Node.js and pnpm
+- `.figma/make/site.json` - Site metadata required by the Vite configuration
+- `flutter_app/` - Dart / Flutter prototype; see its README for setup and execution
 
 ## Dependencies
 
