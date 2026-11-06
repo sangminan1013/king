@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "title": "king_demo",
   "description": "Provides intuitive UI design and backend integration guidance to help users create apps efficiently, including server and AI model connections.",
   "language": "ko",
@@ -10,3 +11,9 @@
     "ignoreReducedMotion": false
   }
 }
+=======
+  "title": "King",
+  "description": "익명 의견을 모아 함께 결정하는 King 프로토타입",
+  "language": "ko"
+}
+>>>>>>> origin/main

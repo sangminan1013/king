@@ -22,7 +22,10 @@ class _RoomScreenState extends State<RoomScreen> {
     super.initState();
     opinionController = TextEditingController(text: widget.controller.opinion);
     widget.controller.addListener(refresh);
+<<<<<<< HEAD
     widget.controller.refreshRoom();
+=======
+>>>>>>> origin/main
   }
 
   void refresh() => setState(() {});
@@ -41,7 +44,11 @@ class _RoomScreenState extends State<RoomScreen> {
 
     return RoyalScaffold(
       title: controller.groupName,
+<<<<<<< HEAD
       kicker: "ROOM · ${controller.roomCode}",
+=======
+      kicker: "ROOM · ${KingController.roomCode}",
+>>>>>>> origin/main
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 40),
         children: [
@@ -105,7 +112,11 @@ class _RoomScreenState extends State<RoomScreen> {
             ),
           ),
           const SizedBox(height: 13),
+<<<<<<< HEAD
           InviteCodeTile(code: controller.roomCode),
+=======
+          const InviteCodeTile(code: KingController.roomCode),
+>>>>>>> origin/main
           const SizedBox(height: 26),
           Container(
             padding: const EdgeInsets.all(18),
@@ -138,6 +149,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   const PrivacyNote("제출 후에는 수정할 수 없으며 익명으로 처리됩니다."),
                   const SizedBox(height: 18),
                   RoyalButton(
+<<<<<<< HEAD
                     label: controller.isRoomBusy ? "의견을 봉인하는 중..." : "의견 봉인하기",
                     icon: Icons.edit_note,
                     onPressed: controller.opinion.trim().length >= 10 &&
@@ -156,6 +168,14 @@ class _RoomScreenState extends State<RoomScreen> {
                           ),
                     ),
                   ],
+=======
+                    label: "의견 봉인하기",
+                    icon: Icons.edit_note,
+                    onPressed: controller.opinion.trim().length >= 10
+                        ? controller.submitOpinion
+                        : null,
+                  ),
+>>>>>>> origin/main
                 ],
               ],
             ),

@@ -1,9 +1,13 @@
 import "package:flutter/material.dart";
 
 import "controller/king_controller.dart";
+<<<<<<< HEAD
 import "screens/auth_screen.dart";
 import "screens/home_screen.dart";
 import "services/supabase_auth_service.dart";
+=======
+import "screens/home_screen.dart";
+>>>>>>> origin/main
 import "theme/king_theme.dart";
 
 class KingApp extends StatefulWidget {
@@ -15,6 +19,7 @@ class KingApp extends StatefulWidget {
 
 class _KingAppState extends State<KingApp> {
   final KingController controller = KingController();
+<<<<<<< HEAD
   final SupabaseAuthService authService = SupabaseAuthService();
   bool isAuthenticated = false;
   bool isCheckingSession = true;
@@ -46,6 +51,8 @@ class _KingAppState extends State<KingApp> {
     controller.reset();
     if (mounted) setState(() => isAuthenticated = false);
   }
+=======
+>>>>>>> origin/main
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +60,7 @@ class _KingAppState extends State<KingApp> {
       title: "King",
       debugShowCheckedModeBanner: false,
       theme: KingTheme.light,
+<<<<<<< HEAD
       home: isCheckingSession
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : isAuthenticated
@@ -61,6 +69,9 @@ class _KingAppState extends State<KingApp> {
                   onSignOut: signOut,
                 )
               : AuthScreen(onGuest: enterAsGuest),
+=======
+      home: HomeScreen(controller: controller),
+>>>>>>> origin/main
     );
   }
 }

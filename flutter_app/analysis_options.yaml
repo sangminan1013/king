@@ -1,8 +1,11 @@
 analyzer:
   exclude:
     - build/**
+<<<<<<< HEAD
     - android/**
     - ios/**
+=======
+>>>>>>> origin/main
 include: package:flutter_lints/flutter.yaml
 
 linter:

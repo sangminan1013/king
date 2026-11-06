@@ -149,6 +149,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           ),
           const SizedBox(height: 23),
           RoyalButton(
+<<<<<<< HEAD
             label: widget.controller.isRoomBusy ? "회의를 여는 중..." : "회의 개설하기",
             icon: Icons.workspace_premium_outlined,
             onPressed: canCreate && !widget.controller.isRoomBusy
@@ -174,6 +175,18 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   ),
             ),
           ],
+=======
+            label: "회의 개설하기",
+            icon: Icons.workspace_premium_outlined,
+            onPressed: canCreate
+                ? () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => RoomScreen(controller: widget.controller),
+                      ),
+                    )
+                : null,
+          ),
+>>>>>>> origin/main
         ],
       ),
     );

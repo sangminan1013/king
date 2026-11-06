@@ -4,12 +4,17 @@ import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 
+<<<<<<< HEAD
 class SummaryScreen extends StatefulWidget {
+=======
+class SummaryScreen extends StatelessWidget {
+>>>>>>> origin/main
   const SummaryScreen({required this.controller, super.key});
 
   final KingController controller;
 
   @override
+<<<<<<< HEAD
   State<SummaryScreen> createState() => _SummaryScreenState();
 }
 
@@ -32,6 +37,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final verdict = controller.verdict!;
+=======
+  Widget build(BuildContext context) {
+>>>>>>> origin/main
     return RoyalScaffold(
       title: "최종 기록",
       kicker: "COUNCIL ARCHIVE",
@@ -72,7 +80,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 const Kicker("최종 평결"),
                 const SizedBox(height: 8),
                 Text(
+<<<<<<< HEAD
                   verdict.title,
+=======
+                  "도심 근교의 복합 문화 공간",
+>>>>>>> origin/main
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: KingColors.burgundyDark,
                       ),
@@ -84,7 +96,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                     border: Border(left: BorderSide(color: KingColors.gold, width: 2)),
                   ),
                   child: Text(
+<<<<<<< HEAD
                     "“${verdict.summary}”",
+=======
+                    "“접근성, 활동 선택권, 예산의 균형을 가장 잘 충족합니다.”",
+>>>>>>> origin/main
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -93,6 +109,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
           const SizedBox(height: 20),
           RoyalButton(
+<<<<<<< HEAD
             label: controller.isRecordSaved
                 ? "기록이 저장되었습니다"
                 : controller.isSavingRecord
@@ -115,6 +132,14 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       ),
                     );
                   },
+=======
+            label: "기록 저장하기",
+            icon: Icons.save_alt,
+            style: RoyalButtonStyle.secondary,
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("서버 연결 후 기록 저장 기능이 활성화됩니다.")),
+            ),
+>>>>>>> origin/main
           ),
           const SizedBox(height: 8),
           RoyalButton(
