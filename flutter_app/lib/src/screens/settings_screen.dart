@@ -3,13 +3,9 @@ import "package:flutter/material.dart";
 import "../widgets/royal_widgets.dart";
 
 class SettingsScreen extends StatelessWidget {
-<<<<<<< HEAD
   const SettingsScreen({required this.onSignOut, super.key});
 
   final Future<void> Function() onSignOut;
-=======
-  const SettingsScreen({super.key});
->>>>>>> origin/main
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +31,6 @@ class SettingsScreen extends StatelessWidget {
               style: RoyalButtonStyle.secondary,
               onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
             ),
-<<<<<<< HEAD
             const SizedBox(height: 10),
             RoyalButton(
               label: "로그아웃",
@@ -46,8 +41,6 @@ class SettingsScreen extends StatelessWidget {
                 await onSignOut();
               },
             ),
-=======
->>>>>>> origin/main
           ],
         ),
       ),

@@ -18,7 +18,6 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
   String code = "";
 
   @override
-<<<<<<< HEAD
   void initState() {
     super.initState();
     widget.controller.addListener(refresh);
@@ -33,8 +32,6 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
   }
 
   @override
-=======
->>>>>>> origin/main
   Widget build(BuildContext context) {
     return RoyalScaffold(
       title: "회의 입장",
@@ -74,7 +71,6 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
           ),
           const SizedBox(height: 18),
           RoyalButton(
-<<<<<<< HEAD
             label: widget.controller.isRoomBusy ? "초대장을 확인하는 중..." : "회의실 문 열기",
             onPressed: code.trim().length >= 6 && !widget.controller.isRoomBusy
                 ? () async {
@@ -99,17 +95,6 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                   ),
             ),
           ],
-=======
-            label: "회의실 문 열기",
-            onPressed: code.trim().length >= 6
-                ? () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => RoomScreen(controller: widget.controller),
-                      ),
-                    )
-                : null,
-          ),
->>>>>>> origin/main
           const SizedBox(height: 24),
           const PrivacyNote("별도의 이름이나 계정 정보는 표시되지 않습니다."),
         ],

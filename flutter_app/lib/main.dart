@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-<<<<<<< HEAD
 import "package:supabase_flutter/supabase_flutter.dart";
 
 import "src/app.dart";
@@ -11,11 +10,5 @@ Future<void> main() async {
     url: SupabaseConfig.url,
     anonKey: SupabaseConfig.anonKey,
   );
-=======
-
-import "src/app.dart";
-
-void main() {
->>>>>>> origin/main
   runApp(const KingApp());
 }

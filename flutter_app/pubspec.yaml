@@ -1,28 +1,17 @@
 name: king
 description: An anonymous, AI-assisted group decision app.
-<<<<<<< HEAD
 publish_to: 'none'
 version: 0.1.0+1
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
-=======
-publish_to: "none"
-version: 0.1.0+1
-
-environment:
-  sdk: ">=3.4.0 <4.0.0"
->>>>>>> origin/main
 
 dependencies:
   flutter:
     sdk: flutter
-<<<<<<< HEAD
   flutter_secure_storage: ^9.2.4
   http: ^1.2.2
   supabase_flutter: ^2.8.3
-=======
->>>>>>> origin/main
 
 dev_dependencies:
   flutter_test:

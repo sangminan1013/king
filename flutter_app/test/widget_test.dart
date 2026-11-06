@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:king/src/screens/auth_screen.dart";
@@ -36,17 +35,5 @@ void main() {
     await tester.tap(find.text("게스트로 입장하기"));
     await tester.pumpAndSettle();
     expect(entered, isTrue);
-=======
-import "package:flutter_test/flutter_test.dart";
-import "package:king/src/app.dart";
-
-void main() {
-  testWidgets("shows the King home screen", (tester) async {
-    await tester.pumpWidget(const KingApp());
-
-    expect(find.text("King"), findsOneWidget);
-    expect(find.text("새로운 회의 열기"), findsOneWidget);
-    expect(find.text("초대 코드로 입장"), findsOneWidget);
->>>>>>> origin/main
   });
 }

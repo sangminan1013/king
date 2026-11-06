@@ -1,19 +1,11 @@
 # King Flutter app
 
-<<<<<<< HEAD
 Flutter-based prototype for King. It contains the complete demonstration flow:
 
 - create or join a council
 - enter with a Supabase anonymous guest session, without registration
 - submit an anonymous opinion
 - review an OpenRouter verdict and its rationale, with a local fallback
-=======
-Flutter-based, local-state MVP for King. It contains the complete prototype flow:
-
-- create or join a council
-- submit an anonymous opinion
-- review a simulated AI verdict and its rationale
->>>>>>> origin/main
 - view the final archived decision
 
 ## Run locally
@@ -30,7 +22,6 @@ flutter run
 `flutter create` adds the generated Android and iOS runner projects without replacing
 the existing `lib/` source.
 
-<<<<<<< HEAD
 ## Supabase and AI
 
 The app uses Supabase anonymous authentication. Rooms, memberships, opinions,
@@ -83,9 +74,28 @@ Run the command from the repository root. The Flutter client calls the deployed
 The Supabase CLI loads `supabase/functions/server/index.ts`, which imports the
 Figma Make implementation from `index.tsx`. Keep both files when exporting or
 copying the project.
-=======
-## Backend status
 
-This version intentionally uses in-memory state and a simulated verdict. No server,
-database, authentication provider, or LLM API is connected yet.
->>>>>>> origin/main
+## Test the complete LLM flow
+
+From the repository root in PowerShell, set the public Supabase anon key for the
+current terminal session and run the integration test:
+
+```powershell
+$env:SUPABASE_ANON_KEY="your-public-anon-key"
+.\scripts\test-king-flow.ps1
+```
+
+If local script execution is restricted, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\test-king-flow.ps1
+```
+
+The test creates one anonymous user and one test room, stores an opinion,
+requests a real OpenRouter verdict, and finalizes the room. It consumes one LLM
+request and leaves the test records in Supabase for inspection.
+
+The verdict pipeline treats topics and opinions as untrusted data, flags common
+instruction-like phrases, applies equal-weight fairness rules, requests a strict
+JSON schema, retries once after a transient or malformed response, and records
+the model plus prompt version with each verdict.

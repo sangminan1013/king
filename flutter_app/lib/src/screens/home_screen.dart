@@ -8,7 +8,6 @@ import "join_room_screen.dart";
 import "settings_screen.dart";
 
 class HomeScreen extends StatelessWidget {
-<<<<<<< HEAD
   const HomeScreen({
     required this.controller,
     required this.onSignOut,
@@ -17,11 +16,6 @@ class HomeScreen extends StatelessWidget {
 
   final KingController controller;
   final Future<void> Function() onSignOut;
-=======
-  const HomeScreen({required this.controller, super.key});
-
-  final KingController controller;
->>>>>>> origin/main
 
   void open(BuildContext context, Widget screen) {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
@@ -72,14 +66,10 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             TextButton.icon(
-<<<<<<< HEAD
               onPressed: () => open(
                 context,
                 SettingsScreen(onSignOut: onSignOut),
               ),
-=======
-              onPressed: () => open(context, const SettingsScreen()),
->>>>>>> origin/main
               icon: const Icon(Icons.settings_outlined, size: 18),
               label: const Text("환경 설정"),
               style: TextButton.styleFrom(foregroundColor: KingColors.muted),

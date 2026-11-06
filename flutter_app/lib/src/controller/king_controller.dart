@@ -1,6 +1,5 @@
 import "package:flutter/foundation.dart";
 
-<<<<<<< HEAD
 import "../data/demo_data.dart";
 import "../models/ai_verdict.dart";
 import "../services/king_api_service.dart";
@@ -29,17 +28,6 @@ class KingController extends ChangeNotifier {
   bool isRecordSaved = false;
   bool isRoomBusy = false;
   List<String> opinions = const [];
-=======
-class KingController extends ChangeNotifier {
-  String groupName = "금요일 원정대";
-  String topic = "이번 분기 팀 워크숍 장소는 어디가 좋을까요?";
-  int memberLimit = 5;
-  int submittedCount = 3;
-  String opinion = "";
-  bool hasSubmitted = false;
-
-  static const String roomCode = "CROWN-27";
->>>>>>> origin/main
 
   void updateGroupName(String value) {
     groupName = value;
@@ -61,7 +49,6 @@ class KingController extends ChangeNotifier {
     notifyListeners();
   }
 
-<<<<<<< HEAD
   Future<bool> createRoom() async {
     return _runRoomAction(() async {
       final snapshot = await _api.createRoom(
@@ -138,19 +125,11 @@ class KingController extends ChangeNotifier {
       isSavingRecord = false;
       notifyListeners();
     }
-=======
-  void submitOpinion() {
-    if (opinion.trim().length < 10 || hasSubmitted) return;
-    hasSubmitted = true;
-    submittedCount = (submittedCount + 1).clamp(0, memberLimit).toInt();
-    notifyListeners();
->>>>>>> origin/main
   }
 
   void startAnotherDecision() {
     topic = "";
     opinion = "";
-<<<<<<< HEAD
     roomId = null;
     roomCode = "";
     roomStatus = "collecting";
@@ -162,15 +141,10 @@ class KingController extends ChangeNotifier {
     roomError = null;
     isRecordSaved = false;
     opinions = const [];
-=======
-    hasSubmitted = false;
-    submittedCount = 1;
->>>>>>> origin/main
     notifyListeners();
   }
 
   void reset() {
-<<<<<<< HEAD
     groupName = DemoData.groupName;
     topic = DemoData.topic;
     memberLimit = 5;
@@ -211,14 +185,5 @@ class KingController extends ChangeNotifier {
     verdict = snapshot.verdict;
     opinions = snapshot.opinions;
     isRecordSaved = snapshot.status == "finalized";
-=======
-    groupName = "금요일 원정대";
-    topic = "이번 분기 팀 워크숍 장소는 어디가 좋을까요?";
-    memberLimit = 5;
-    submittedCount = 3;
-    opinion = "";
-    hasSubmitted = false;
-    notifyListeners();
->>>>>>> origin/main
   }
 }

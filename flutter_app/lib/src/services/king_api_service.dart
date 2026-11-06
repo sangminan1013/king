@@ -136,7 +136,8 @@ class KingApiService {
     final request = http.Request(
       method,
       Uri.parse("${SupabaseConfig.functionBaseUrl}$path"),
-    )..headers.addAll({
+    )
+      ..headers.addAll({
         "apikey": SupabaseConfig.anonKey,
         "Authorization": "Bearer ${session.accessToken}",
         "Content-Type": "application/json",
@@ -151,8 +152,9 @@ class KingApiService {
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final error = decoded["error"];
-      final message =
-          error is Map<String, dynamic> ? error["message"]?.toString() : null;
+      final message = error is Map<String, dynamic>
+          ? error["message"]?.toString()
+          : null;
       throw KingApiException(message ?? "서버 요청에 실패했습니다.");
     }
 
