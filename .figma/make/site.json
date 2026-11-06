@@ -1,0 +1,12 @@
+{
+  "title": "king_demo",
+  "description": "Provides intuitive UI design and backend integration guidance to help users create apps efficiently, including server and AI model connections.",
+  "language": "ko",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
