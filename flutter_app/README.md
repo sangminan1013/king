@@ -5,7 +5,7 @@ Flutter-based prototype for King. It contains the complete demonstration flow:
 - create or join a council
 - enter with a Supabase anonymous guest session, without registration
 - submit an anonymous opinion
-- review an OpenRouter verdict and its rationale, with a local fallback
+- wait for every configured participant, then review an OpenRouter verdict and its rationale
 - view the final archived decision
 
 ## Run locally
@@ -120,3 +120,38 @@ as a different guest does not recover the previous guest's history. Continuing
 with another agenda in the same room is not part of this change.
 
 Run the regression checks with `flutter test test/my_rooms_test.dart`.
+
+
+## Submission and verdict waiting flow
+
+Submitting an opinion opens a separate **평결 대기** screen. The old **AI 평결
+미리보기** action is removed. Creating a room now specifies the required
+participant count: all of those participants must join and submit one opinion
+before a verdict can be generated, not just the members who happen to have
+joined so far. Set this count to the number of people actually participating.
+
+Automatic polling / Realtime is intentionally deferred. On entry and when
+**제출 현황 확인** is pressed, the waiting screen reads the latest room. If all
+configured participants have submitted, it requests the verdict and navigates
+to the result; otherwise it stays waiting without calling AI. Network or AI
+errors stay on the waiting screen and can be retried. A saved verdict is reused.
+The result screen itself never starts an AI request.
+
+The Edge Function independently checks membership and per-member submissions,
+returns `409 WAITING_FOR_OPINIONS` for incomplete rooms, and rejects opinion
+submissions after a verdict already exists. This backend protection requires
+redeploying `server`; updating Flutter or merging the PR alone does not deploy it.
+No DB migration is required. Deploy both `index.ts` and the files it imports,
+including `readiness.ts`, using the existing Supabase deployment command.
+
+Regression checks (no production DB or real OpenRouter calls):
+
+```sh
+cd flutter_app
+flutter test
+cd ../supabase/functions/server
+npx --yes deno task test
+```
+
+Existing verdicts created before this fix are not deleted or regenerated.
+Use a new room when validating that every opinion was included.

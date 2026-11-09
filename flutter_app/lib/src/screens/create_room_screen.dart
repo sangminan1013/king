@@ -91,7 +91,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("참여 인원", style: Theme.of(context).textTheme.labelLarge),
-                      Text("의견을 제출할 최대 인원", style: Theme.of(context).textTheme.bodySmall),
+                      Text("설정한 인원 모두 제출하면 평결이 시작됩니다", style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),

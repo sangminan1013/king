@@ -2,8 +2,9 @@ import { createClient } from 'jsr:@supabase/supabase-js@2.49.8'
 import { Hono } from 'npm:hono'
 import { cors } from 'npm:hono/cors'
 import { logger } from 'npm:hono/logger'
+import { isRoomReady } from './readiness.ts'
 
-const app = new Hono()
+export const app = new Hono()
 const basePath = '/server'
 const verdictModel = 'openai/gpt-4o-mini'
 const verdictPromptVersion = 'king-verdict-v2'
@@ -230,7 +231,7 @@ const insertRoom = async (
 
 const parseVerdict = (rawContent: string): Verdict => {
   const parsed = JSON.parse(rawContent.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, ''))
-  const reasons = Array.isArray(parsed.reasons)
+  const reasons: Verdict['reasons'] = Array.isArray(parsed.reasons)
     ? parsed.reasons.slice(0, 3).map((reason: any) => ({
         title: cleanText(reason?.title, 80),
         detail: cleanText(reason?.detail, 240),
@@ -497,6 +498,13 @@ app.post(`${basePath}/rooms/:roomId/opinions`, async (c) => {
     return jsonError(c, 409, 'ROOM_CLOSED', '이미 종료된 회의에는 의견을 제출할 수 없습니다.')
   }
 
+  const existingVerdict = await adminClient()
+    .from('verdicts').select('room_id').eq('room_id', roomId).maybeSingle()
+  if (existingVerdict.error) throw existingVerdict.error
+  if (existingVerdict.data) {
+    return jsonError(c, 409, 'VERDICT_EXISTS', '이미 평결이 생성된 회의에는 의견을 추가할 수 없습니다.')
+  }
+
   const body = await c.req.json().catch(() => ({}))
   const content = cleanText(body.content, 300)
   if (content.length < 10) {
@@ -532,17 +540,28 @@ app.post(`${basePath}/rooms/:roomId/verdict`, async (c) => {
     .eq('room_id', roomId)
     .maybeSingle()
   if (existing.error) throw existing.error
+  if (room.status !== 'collecting') {
+    if (existing.data) return c.json(await roomResponse(room, auth.userId))
+    return jsonError(c, 409, 'ROOM_CLOSED', '이미 종료된 회의입니다.')
+  }
+
+  const [membersResult, opinionsResult] = await Promise.all([
+    admin.from('room_members').select('user_id').eq('room_id', roomId),
+    admin.from('opinions').select('author_id, content').eq('room_id', roomId).order('submitted_at'),
+  ])
+  if (membersResult.error) throw membersResult.error
+  if (opinionsResult.error) throw opinionsResult.error
+  const submittedOpinions = opinionsResult.data ?? []
+  if (!isRoomReady(
+    room.member_limit,
+    (membersResult.data ?? []).map((member) => member.user_id),
+    submittedOpinions.map((opinion) => opinion.author_id),
+  )) {
+    return jsonError(c, 409, 'WAITING_FOR_OPINIONS', '설정한 참여 인원 모두가 의견을 제출해야 평결을 생성할 수 있습니다.')
+  }
+
   if (!existing.data) {
-    const opinionsResult = await admin
-      .from('opinions')
-      .select('content')
-      .eq('room_id', roomId)
-      .order('submitted_at')
-    if (opinionsResult.error) throw opinionsResult.error
-    const opinions = opinionsResult.data?.map((opinion) => opinion.content) ?? []
-    if (opinions.length === 0) {
-      return jsonError(c, 409, 'NO_OPINIONS', '평결을 생성할 의견이 아직 없습니다.')
-    }
+    const opinions = submittedOpinions.map((opinion) => opinion.content)
 
     try {
       const verdict = await createVerdict(room.topic, opinions)
@@ -605,4 +624,4 @@ app.onError((error, c) => {
   return jsonError(c, 500, 'SERVER_ERROR', '서버 요청을 처리하지 못했습니다.')
 })
 
-Deno.serve(app.fetch)
+if (import.meta.main) Deno.serve(app.fetch)

@@ -21,7 +21,6 @@ class _ResultScreenState extends State<ResultScreen> {
   void initState() {
     super.initState();
     widget.controller.addListener(refresh);
-    widget.controller.generateVerdict();
   }
 
   void refresh() => setState(() {});
@@ -38,40 +37,13 @@ class _ResultScreenState extends State<ResultScreen> {
     return RoyalScaffold(
       title: "AI의 평결",
       kicker: "THE VERDICT",
-      child: controller.isGeneratingVerdict
-          ? const _LoadingVerdict()
-          : controller.verdictError != null
-              ? _VerdictError(
-                  message: controller.verdictError!,
-                  onRetry: controller.retryVerdict,
-                )
-              : _VerdictContent(
-                  controller: controller,
-                  verdict: controller.verdict!,
-                ),
-    );
-  }
-}
-
-class _LoadingVerdict extends StatelessWidget {
-  const _LoadingVerdict();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RoyalCrest(),
-            SizedBox(height: 24),
-            CircularProgressIndicator(color: KingColors.burgundy),
-            SizedBox(height: 18),
-            Text("익명 의견을 공정하게 살피고 있습니다"),
-          ],
-        ),
-      ),
+      child: controller.verdict == null
+          ? _VerdictError(
+              message: "평결이 아직 준비되지 않았습니다. 대기 화면에서 제출 현황을 확인해 주세요.",
+              onRetry: () => Navigator.of(context).maybePop(),
+            )
+          : _VerdictContent(
+              controller: controller, verdict: controller.verdict!),
     );
   }
 }
@@ -100,7 +72,7 @@ class _VerdictError extends StatelessWidget {
             ),
             const SizedBox(height: 22),
             RoyalButton(
-              label: "다시 평결 요청하기",
+              label: "돌아가기",
               icon: Icons.refresh,
               onPressed: onRetry,
             ),

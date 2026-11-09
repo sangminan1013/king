@@ -80,15 +80,18 @@ class KingController extends ChangeNotifier {
     });
   }
 
-  Future<void> refreshRoom() async {
+  bool get allOpinionsSubmitted =>
+      memberLimit >= 2 &&
+      memberCount == memberLimit &&
+      submittedCount == memberLimit;
+
+  Future<bool> refreshRoom() async {
     final id = roomId;
-    if (id == null || isRoomBusy) return;
-    try {
-      _apply(await _api.getRoom(id));
-    } on KingApiException catch (error) {
-      roomError = error.message;
-      notifyListeners();
-    }
+    if (id == null) return false;
+    return _runRoomAction(() async {
+      final snapshot = await _api.getRoom(id);
+      if (roomId == id) _apply(snapshot);
+    });
   }
 
   Future<void> submitOpinion() async {
@@ -104,28 +107,45 @@ class KingController extends ChangeNotifier {
     });
   }
 
-  Future<void> generateVerdict() async {
+  Future<bool> generateVerdict() async {
     final id = roomId;
-    if (id == null || isGeneratingVerdict || verdict != null) return;
+    if (id == null || isGeneratingVerdict) return false;
     isGeneratingVerdict = true;
     verdictError = null;
     notifyListeners();
-
     try {
-      _apply(await _api.generateVerdict(id));
+      // Always confirm readiness against the server, even if a caller bypasses
+      // the waiting screen or the last local snapshot is out of date.
+      final snapshot = await _api.getRoom(id);
+      if (roomId != id) return false;
+      _apply(snapshot);
+      if (roomStatus != "finalized" && !allOpinionsSubmitted) {
+        verdictError = "설정한 참여 인원 모두가 제출할 때까지 기다려 주세요.";
+        return false;
+      }
+      if (verdict != null) return true;
+      if (roomStatus == "finalized") {
+        verdictError = "저장된 평결을 찾지 못했습니다.";
+        return false;
+      }
+      final generated = await _api.generateVerdict(id);
+      if (roomId != id) return false;
+      _apply(generated);
+      if (verdict == null) {
+        verdictError = "평결이 아직 준비되지 않았습니다. 다시 확인해 주세요.";
+        return false;
+      }
+      return true;
     } on KingApiException catch (error) {
       verdictError = error.message;
+      return false;
     } catch (_) {
       verdictError = "AI 평결을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+      return false;
     } finally {
       isGeneratingVerdict = false;
       notifyListeners();
     }
-  }
-
-  Future<void> retryVerdict() async {
-    verdict = null;
-    await generateVerdict();
   }
 
   Future<void> saveDecision() async {

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window", "dom", "dom.iterable"],
+    "strict": true
+  },
+  "nodeModulesDir": "none",
+  "lock": false,
+  "tasks": {
+    "test": "deno test --allow-env --allow-net index_test.ts"
+  }
+}
