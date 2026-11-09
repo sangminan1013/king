@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
-import "result_screen.dart";
+import "waiting_screen.dart";
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({required this.controller, super.key});
@@ -16,6 +16,7 @@ class RoomScreen extends StatefulWidget {
 
 class _RoomScreenState extends State<RoomScreen> {
   late final TextEditingController opinionController;
+  bool leaving = false;
 
   @override
   void initState() {
@@ -23,9 +24,27 @@ class _RoomScreenState extends State<RoomScreen> {
     opinionController = TextEditingController(text: widget.controller.opinion);
     widget.controller.addListener(refresh);
     widget.controller.refreshRoom();
+    goToWaitingIfSubmitted();
   }
 
-  void refresh() => setState(() {});
+  void refresh() {
+    setState(() {});
+    goToWaitingIfSubmitted();
+  }
+
+  void goToWaitingIfSubmitted() {
+    if (!widget.controller.hasSubmitted || leaving) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || leaving || ModalRoute.of(context)?.isCurrent != true) {
+        return;
+      }
+      if (!widget.controller.hasSubmitted) return;
+      leaving = true;
+      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+        builder: (_) => WaitingScreen(controller: widget.controller),
+      ));
+    });
+  }
 
   @override
   void dispose() {
@@ -58,7 +77,8 @@ class _RoomScreenState extends State<RoomScreen> {
               const SizedBox(width: 7),
               Text("의견 수집 중", style: Theme.of(context).textTheme.bodySmall),
               const Spacer(),
-              const Icon(Icons.people_outline, size: 17, color: KingColors.muted),
+              const Icon(Icons.people_outline,
+                  size: 17, color: KingColors.muted),
               const SizedBox(width: 5),
               Text(
                 "${controller.submittedCount} / ${controller.memberLimit}",
@@ -122,7 +142,10 @@ class _RoomScreenState extends State<RoomScreen> {
                 ),
                 const SizedBox(height: 24),
                 if (controller.hasSubmitted)
-                  _SubmittedState(controller: controller)
+                  const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text("대기 화면으로 이동합니다..."),
+                  )
                 else ...[
                   TextField(
                     controller: opinionController,
@@ -162,48 +185,6 @@ class _RoomScreenState extends State<RoomScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SubmittedState extends StatelessWidget {
-  const _SubmittedState({required this.controller});
-
-  final KingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 62,
-          height: 62,
-          decoration: const BoxDecoration(
-            color: KingColors.green,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.check, color: Color(0xFFFFF5DF), size: 30),
-        ),
-        const SizedBox(height: 14),
-        Text("의견이 봉인되었습니다", style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 7),
-        Text(
-          "다른 참여자의 제출을 기다리고 있습니다.\n내용은 누구에게도 표시되지 않습니다.",
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 22),
-        RoyalButton(
-          label: "AI 평결 미리보기",
-          icon: Icons.auto_awesome_outlined,
-          style: RoyalButtonStyle.secondary,
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => ResultScreen(controller: controller),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

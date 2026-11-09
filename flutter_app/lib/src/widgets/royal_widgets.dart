@@ -75,7 +75,7 @@ class RoyalHeader extends StatelessWidget {
           SizedBox(
             width: 44,
             child: IconButton(
-              onPressed: onBack ?? () => Navigator.of(context).pop(),
+              onPressed: onBack ?? () => Navigator.of(context).maybePop(),
               color: const Color(0xFFF8EEDB),
               icon: const Icon(Icons.chevron_left),
               tooltip: "뒤로 가기",
@@ -100,7 +100,15 @@ class RoyalHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 44, child: RoyalCrest(small: true)),
+          SizedBox(
+            width: 44,
+            child: IconButton(
+              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              color: const Color(0xFFF8EEDB),
+              icon: const Icon(Icons.home_outlined),
+              tooltip: "홈으로",
+            ),
+          ),
         ],
       ),
     );

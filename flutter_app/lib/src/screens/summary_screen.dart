@@ -48,7 +48,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
           const SizedBox(height: 5),
           Text(
-            "참여자 ${controller.memberLimit}명",
+            "참여자 ${controller.memberCount}명",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),

@@ -66,7 +66,13 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               letterSpacing: 2,
               fontWeight: FontWeight.w700,
             ),
-            decoration: const InputDecoration(hintText: "CROWN-27"),
+            decoration: const InputDecoration(
+              hintText: "예: KING-ABC",
+              hintStyle: TextStyle(
+                color: Color(0xFFB5A999),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             onChanged: (value) => setState(() => code = value),
           ),
           const SizedBox(height: 18),
