@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:king/src/controller/king_controller.dart';
 import 'package:king/src/models/ai_verdict.dart';
 import 'package:king/src/screens/room_screen.dart';
+import 'package:king/src/screens/create_room_screen.dart';
 import 'package:king/src/screens/waiting_screen.dart';
 import 'package:king/src/screens/result_screen.dart';
 import 'package:king/src/services/king_api_service.dart';
@@ -44,6 +45,9 @@ class WaitingApi extends KingApiService {
       );
 
   @override
+  Future<RoomSnapshot> createRoom({required String groupName, required String topic, required int memberLimit}) async => current;
+
+  @override
   Future<RoomSnapshot> getRoom(String roomId) async {
     if (failRefresh) throw const KingApiException('현황 조회 실패');
     return current;
@@ -82,6 +86,28 @@ Future<void> check(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('entering room from create screen does not notify during build', (tester) async {
+    final api = WaitingApi()..submitted = 0..hasSubmitted = false;
+    final controller = KingController(api: api);
+    await controller.openRoom('room');
+    await show(tester, CreateRoomScreen(controller: controller));
+    await tester.ensureVisible(find.text('회의 개설하기'));
+    await tester.tap(find.text('회의 개설하기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RoomScreen), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('reentering a submitted room opens waiting and its ready result', (tester) async {
+    final api = WaitingApi()..submitted = 2;
+    final controller = KingController(api: api);
+    await controller.openRoom('room');
+    await show(tester, RoomScreen(controller: controller));
+    expect(find.byType(ResultScreen), findsOneWidget);
+    expect(api.verdictRequests, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('submission navigates to waiting and never exposes preview',
       (tester) async {
     final api = WaitingApi()

@@ -23,8 +23,15 @@ class _RoomScreenState extends State<RoomScreen> {
     super.initState();
     opinionController = TextEditingController(text: widget.controller.opinion);
     widget.controller.addListener(refresh);
-    widget.controller.refreshRoom();
-    goToWaitingIfSubmitted();
+    if (widget.controller.hasSubmitted) {
+      goToWaitingIfSubmitted();
+    } else {
+      // Refresh notifies screens retained below this route too. Wait until
+      // route construction finishes before updating their shared controller.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.controller.refreshRoom();
+      });
+    }
   }
 
   void refresh() {
