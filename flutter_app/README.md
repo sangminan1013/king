@@ -102,10 +102,12 @@ the model plus prompt version with each verdict.
 
 ## My rooms and saved records
 
-The Flutter home screen lists rooms joined by the current Supabase user, newest
-first, in pages of 20. Tap an active room to return without an invite code, or a
+The Flutter home screen has a **회의 기록** button. It opens a dedicated history
+screen listing rooms joined by the current Supabase user, newest first, in pages
+of 20. The home screen itself does not query or display the room list. Tap an active room to return without an invite code, or a
 finalized room to read its saved decision without requesting another AI verdict.
-Pull down or use refresh to reload; the list also refreshes after returning home.
+Pull down or use refresh to reload; the list also refreshes after returning to the history screen from a room.
+Opening history again reloads the list, including newly created or joined rooms.
 
 The list uses the authenticated Supabase client with an explicit membership
 filter and the existing `rooms_select_for_members` / membership RLS policies.

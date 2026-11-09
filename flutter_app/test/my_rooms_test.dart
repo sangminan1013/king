@@ -4,6 +4,7 @@ import 'package:king/src/controller/king_controller.dart';
 import 'package:king/src/models/ai_verdict.dart';
 import 'package:king/src/models/room_list_entry.dart';
 import 'package:king/src/screens/home_screen.dart';
+import 'package:king/src/screens/room_history_screen.dart';
 import 'package:king/src/screens/room_screen.dart';
 import 'package:king/src/screens/summary_screen.dart';
 import 'package:king/src/services/king_api_service.dart';
@@ -75,7 +76,8 @@ class FakeApi extends KingApiService {
   }
 }
 
-Future<void> showHome(WidgetTester tester, FakeApi api) async {
+Future<void> showHome(WidgetTester tester, FakeApi api,
+    {bool openHistory = true}) async {
   tester.view.physicalSize = const Size(420, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
@@ -86,6 +88,9 @@ Future<void> showHome(WidgetTester tester, FakeApi api) async {
         controller: KingController(api: api), onSignOut: () async {}),
   ));
   await tester.pumpAndSettle();
+  if (openHistory) {
+    await tapVisible(tester, find.text('회의 기록'));
+  }
 }
 
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
@@ -98,10 +103,20 @@ void main() {
   testWidgets(
       'empty home keeps existing entry actions and fits a narrow screen',
       (tester) async {
-    await showHome(tester, FakeApi());
+    final api = FakeApi();
+    await showHome(tester, api, openHistory: false);
     expect(find.text('새로운 회의 열기'), findsOneWidget);
     expect(find.text('초대 코드로 입장'), findsOneWidget);
-    await tester.scrollUntilVisible(find.textContaining('아직 참여한 회의가 없어요'), 200);
+    expect(find.byType(RoomHistoryScreen), findsNothing);
+    expect(find.text('내 회의'), findsNothing);
+    expect(api.listCalls, 0);
+    await tapVisible(tester, find.text('회의 기록'));
+    expect(find.byType(RoomHistoryScreen), findsOneWidget);
+    expect(api.listCalls, 1);
+    expect(find.textContaining('아직 참여한 회의가 없어요'), findsOneWidget);
+    await tester.tap(find.byTooltip('뒤로 가기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RoomHistoryScreen), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -143,12 +158,12 @@ void main() {
     expect(save.onPressed, isNull);
   });
 
-  testWidgets('room access failure stays on home', (tester) async {
+  testWidgets('room access failure stays in history', (tester) async {
     final api = FakeApi()..entries = [entry('A')];
     await showHome(tester, api);
     api.fail = true;
     await tapVisible(tester, find.text('회의 A'));
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(RoomHistoryScreen), findsOneWidget);
     expect(find.text('회의 접근 불가'), findsOneWidget);
   });
 
