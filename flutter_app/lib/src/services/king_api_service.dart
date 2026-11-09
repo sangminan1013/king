@@ -6,6 +6,7 @@ import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../config/supabase_config.dart";
 import "../models/ai_verdict.dart";
+import "../models/room_list_entry.dart";
 
 class RoomSnapshot {
   const RoomSnapshot({
@@ -73,6 +74,34 @@ class KingApiService {
   final http.Client _http;
   final FlutterSecureStorage _secureStorage;
 
+  static const roomPageSize = 20;
+
+  Future<List<RoomListEntry>> listMyRooms({int offset = 0}) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null || _supabase.auth.currentSession == null) {
+      throw const KingApiException("게스트 세션이 만료되었습니다. 다시 입장해 주세요.");
+    }
+    try {
+      // Use the guest JWT, never a service-role key. The existing
+      // rooms_select_for_members RLS policy restricts this to joined rooms.
+      final rows = await _supabase
+          .from("rooms")
+          .select(
+              "id, invite_code, group_name, topic, status, owner_id, created_at, finalized_at, room_members!inner(user_id)")
+          .eq("room_members.user_id", user.id)
+          .order("created_at", ascending: false)
+          .order("id", ascending: false)
+          .range(offset, offset + roomPageSize - 1);
+      return rows.map((row) => RoomListEntry.fromJson(row, user.id)).toList();
+    } on AuthException {
+      throw const KingApiException("게스트 세션이 만료되었습니다. 다시 입장해 주세요.");
+    } on PostgrestException {
+      throw const KingApiException("회의 목록을 불러오지 못했습니다. 다시 시도해 주세요.");
+    } catch (_) {
+      throw const KingApiException("회의 목록에 연결하지 못했습니다. 네트워크 상태를 확인해 주세요.");
+    }
+  }
+
   String _ownerTokenKey(String code) =>
       "king.room-owner.${code.trim().toUpperCase()}";
 
@@ -136,8 +165,7 @@ class KingApiService {
     final request = http.Request(
       method,
       Uri.parse("${SupabaseConfig.functionBaseUrl}$path"),
-    )
-      ..headers.addAll({
+    )..headers.addAll({
         "apikey": SupabaseConfig.anonKey,
         "Authorization": "Bearer ${session.accessToken}",
         "Content-Type": "application/json",
@@ -152,9 +180,8 @@ class KingApiService {
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final error = decoded["error"];
-      final message = error is Map<String, dynamic>
-          ? error["message"]?.toString()
-          : null;
+      final message =
+          error is Map<String, dynamic> ? error["message"]?.toString() : null;
       throw KingApiException(message ?? "서버 요청에 실패했습니다.");
     }
 

@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 
 import "../data/demo_data.dart";
 import "../models/ai_verdict.dart";
+import "../models/room_list_entry.dart";
 import "../services/king_api_service.dart";
 
 class KingController extends ChangeNotifier {
@@ -28,6 +29,19 @@ class KingController extends ChangeNotifier {
   bool isRecordSaved = false;
   bool isRoomBusy = false;
   List<String> opinions = const [];
+
+  Future<List<RoomListEntry>> listMyRooms({int offset = 0}) =>
+      _api.listMyRooms(offset: offset);
+
+  Future<bool> openRoom(String id) => _runRoomAction(() async {
+        final snapshot = await _api.getRoom(id);
+        if (snapshot.status == "finalized" && snapshot.verdict == null) {
+          throw const KingApiException("저장된 평결을 찾지 못했습니다.");
+        }
+        opinion = "";
+        verdictError = null;
+        _apply(snapshot);
+      });
 
   void updateGroupName(String value) {
     groupName = value;
@@ -79,7 +93,10 @@ class KingController extends ChangeNotifier {
 
   Future<void> submitOpinion() async {
     final id = roomId;
-    if (id == null || opinion.trim().length < 10 || hasSubmitted || isRoomBusy) {
+    if (id == null ||
+        opinion.trim().length < 10 ||
+        hasSubmitted ||
+        isRoomBusy) {
       return;
     }
     await _runRoomAction(() async {
@@ -113,7 +130,9 @@ class KingController extends ChangeNotifier {
 
   Future<void> saveDecision() async {
     final id = roomId;
-    if (id == null || verdict == null || isSavingRecord || isRecordSaved) return;
+    if (id == null || verdict == null || isSavingRecord || isRecordSaved) {
+      return;
+    }
     isSavingRecord = true;
     notifyListeners();
     try {
@@ -136,6 +155,7 @@ class KingController extends ChangeNotifier {
     memberCount = 0;
     submittedCount = 0;
     hasSubmitted = false;
+    isOwner = false;
     verdict = null;
     verdictError = null;
     roomError = null;

@@ -99,3 +99,22 @@ The verdict pipeline treats topics and opinions as untrusted data, flags common
 instruction-like phrases, applies equal-weight fairness rules, requests a strict
 JSON schema, retries once after a transient or malformed response, and records
 the model plus prompt version with each verdict.
+
+## My rooms and saved records
+
+The Flutter home screen lists rooms joined by the current Supabase user, newest
+first, in pages of 20. Tap an active room to return without an invite code, or a
+finalized room to read its saved decision without requesting another AI verdict.
+Pull down or use refresh to reload; the list also refreshes after returning home.
+
+The list uses the authenticated Supabase client with an explicit membership
+filter and the existing `rooms_select_for_members` / membership RLS policies.
+Apply the existing migrations before use. No new migration, Edge Function
+endpoint, server secret, or server deployment is required for this feature.
+Existing create/join, opinion submission, and finalization flows remain in place.
+
+This is scoped to the current guest user ID. Losing that session or signing in
+as a different guest does not recover the previous guest's history. Continuing
+with another agenda in the same room is not part of this change.
+
+Run the regression checks with `flutter test test/my_rooms_test.dart`.
