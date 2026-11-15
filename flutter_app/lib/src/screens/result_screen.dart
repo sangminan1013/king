@@ -95,7 +95,7 @@ class _VerdictContent extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 40),
       children: [
         const RoyalCrest(),
-        const Kicker("THE COUNCIL HAS DECIDED"),
+        Kicker(controller.kingPersonality.label),
         const SizedBox(height: 12),
         Text(
           verdict.title,
@@ -108,7 +108,7 @@ class _VerdictContent extends StatelessWidget {
         Text(
           verdict.summary,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: KingTheme.decisionSummary,
         ),
         const SizedBox(height: 28),
         Container(
@@ -149,41 +149,6 @@ class _VerdictContent extends StatelessWidget {
                 _Reason(title: reason.title, detail: reason.detail),
             ],
           ),
-        ),
-        const SizedBox(height: 14),
-        ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 4),
-          shape: const Border(),
-          collapsedShape: const Border(),
-          title: const Text(
-            "AI가 고려한 의견 보기",
-            style: TextStyle(
-              fontFamily: "sans-serif",
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          children: [
-            for (var index = 0; index < controller.opinions.length; index++)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.all(10),
-                color: Colors.white.withOpacity(.25),
-                child: Text(
-                  "익명 ${index + 1}\n${controller.opinions[index]}",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            if (controller.opinions.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Text(
-                  "평결이 확정되면 작성자 정보 없이 의견 내용만 표시됩니다.",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-          ],
         ),
         const SizedBox(height: 22),
         Row(

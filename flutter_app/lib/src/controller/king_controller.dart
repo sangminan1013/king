@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 
 import "../data/demo_data.dart";
 import "../models/ai_verdict.dart";
+import "../models/king_personality.dart";
 import "../models/room_list_entry.dart";
 import "../services/king_api_service.dart";
 
@@ -13,6 +14,7 @@ class KingController extends ChangeNotifier {
   String groupName = DemoData.groupName;
   String topic = DemoData.topic;
   int memberLimit = 5;
+  KingPersonality kingPersonality = KingPersonality.wise;
   int memberCount = 0;
   int submittedCount = 0;
   String opinion = "";
@@ -48,6 +50,12 @@ class KingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void selectKing(KingPersonality value) {
+    if (isRoomBusy) return;
+    kingPersonality = value;
+    notifyListeners();
+  }
+
   void updateTopic(String value) {
     topic = value;
     notifyListeners();
@@ -69,6 +77,7 @@ class KingController extends ChangeNotifier {
         groupName: groupName,
         topic: topic,
         memberLimit: memberLimit,
+        kingPersonality: kingPersonality.id,
       );
       _apply(snapshot);
     });
@@ -167,6 +176,7 @@ class KingController extends ChangeNotifier {
   }
 
   void startAnotherDecision() {
+    kingPersonality = KingPersonality.wise;
     topic = "";
     opinion = "";
     roomId = null;
@@ -212,6 +222,7 @@ class KingController extends ChangeNotifier {
   }
 
   void _apply(RoomSnapshot snapshot) {
+    kingPersonality = KingPersonality.fromId(snapshot.kingPersonality);
     roomId = snapshot.id;
     roomCode = snapshot.code;
     groupName = snapshot.groupName;

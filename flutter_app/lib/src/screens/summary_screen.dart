@@ -34,7 +34,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
     final verdict = controller.verdict!;
     return RoyalScaffold(
       title: "최종 기록",
-      kicker: "COUNCIL ARCHIVE",
+      kicker: "${controller.kingPersonality.label} · 최종 기록",
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 45, 24, 40),
         children: [
@@ -85,7 +85,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                   ),
                   child: Text(
                     "“${verdict.summary}”",
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: KingTheme.decisionSummary,
                   ),
                 ),
               ],

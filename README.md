@@ -1,3 +1,7 @@
+> 최신 기능: 방 생성 시 왕의 성격 5종을 선택할 수 있습니다. 판단 기준·말투·배포 내역은 [KING_PERSONALITIES.md](KING_PERSONALITIES.md)를 참고하세요.
+
+> 2026-11-15 수정본: 원문·전처리 저장 및 3단계 LLM 선택 파이프라인. 적용 순서와 검증 내용은 [LLM_PIPELINE.md](LLM_PIPELINE.md)를 참고하세요.
+
 <<<<<<< HEAD
 # king_demo_test
 =======

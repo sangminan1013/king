@@ -22,12 +22,14 @@ class RoomSnapshot {
     required this.hasSubmitted,
     required this.opinions,
     this.verdict,
+    this.kingPersonality = "wise",
   });
 
   final String id;
   final String code;
   final String groupName;
   final String topic;
+  final String kingPersonality;
   final int memberLimit;
   final int memberCount;
   final int submittedCount;
@@ -41,6 +43,7 @@ class RoomSnapshot {
     final rawOpinions = json["opinions"];
     final rawVerdict = json["verdict"];
     return RoomSnapshot(
+      kingPersonality: json["kingPersonality"]?.toString() ?? "wise",
       id: json["id"]?.toString() ?? "",
       code: json["code"]?.toString() ?? "",
       groupName: json["groupName"]?.toString() ?? "",
@@ -109,6 +112,7 @@ class KingApiService {
     required String groupName,
     required String topic,
     required int memberLimit,
+    String kingPersonality = "wise",
   }) {
     return _roomRequest(
       "POST",
@@ -117,6 +121,7 @@ class KingApiService {
         "groupName": groupName,
         "topic": topic,
         "memberLimit": memberLimit,
+        "kingPersonality": kingPersonality,
       },
     );
   }

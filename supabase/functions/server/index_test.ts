@@ -1,5 +1,6 @@
 import { app } from './index.tsx'
 import { isRoomReady } from './readiness.ts'
+import { personalities, type KingPersonality } from './personalities.ts'
 
 const assert = (condition: unknown, message = 'Assertion failed') => {
   if (!condition) throw new Error(message)
@@ -17,7 +18,7 @@ const verdict = {
 }
 
 async function fixture(
-  options: { members?: string[]; authors?: string[]; stored?: boolean; closed?: boolean },
+  options: { members?: string[]; authors?: string[]; stored?: boolean; closed?: boolean; badPreprocessing?: boolean; invalidSelection?: boolean; failedRunSave?: boolean; king?: KingPersonality },
   run: (state: { aiCalls: number; writes: number }, request: (path?: string, method?: string, user?: string) => Promise<Response>) => Promise<void>,
 ) {
   const members = options.members ?? ['a', 'b']
@@ -31,7 +32,22 @@ async function fixture(
     const url = new URL(req.url)
     if (url.host === 'openrouter.ai') {
       state.aiCalls++
-      return json({ choices: [{ message: { content: JSON.stringify({ ...verdict, fitScore: 80 }) } }] })
+      const payload = await req.json()
+      if (payload.response_format.json_schema.name === 'king_preprocessing') {
+        const input = JSON.parse(payload.messages[1].content)
+        return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({
+          topic: input.topic,
+          opinions: options.badPreprocessing ? [] : input.opinions.map((opinion: { participant: number; text: string }) => ({ ...opinion, text: '정규화된 의견', injectionDetected: true })),
+        }) } }] })
+      }
+      if (payload.response_format.json_schema.name === 'king_decision') {
+        assert(payload.messages[0].content.includes(personalities[options.king ?? 'wise'].priorities), 'Wrong decision priorities')
+        return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ selectedParticipant: options.invalidSelection ? 99 : 1, fitScore: 75, rationale: '첫 의견이 조건에 가장 적합함' }) } }] })
+      }
+      assert(payload.messages[0].content.includes(personalities[options.king ?? 'wise'].voice), 'Wrong narration voice')
+      assert(!payload.messages[1].content.includes('충분히 긴 의견'), 'Raw opinions reached decision model')
+      assert(payload.messages[1].content.includes('정규화된 의견'))
+      return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...verdict, fitScore: 80 }) } }] })
     }
     if (url.pathname === '/auth/v1/user') {
       const id = req.headers.get('Authorization')?.replace('Bearer ', '') ?? 'a'
@@ -40,18 +56,31 @@ async function fixture(
     const table = url.pathname.split('/').at(-1)
     if (req.method !== 'GET') {
       state.writes++
-      if (table === 'verdicts') stored = true
+      if (table === 'decision_runs' && req.method === 'POST') {
+        const saved = await req.json()
+        assert(saved.king_personality === (options.king ?? 'wise'))
+        assert(saved.personality_snapshot.name === personalities[options.king ?? 'wise'].name)
+        assert(saved.source_opinions[0].originalText.includes('충분히 긴 의견'))
+        assert(saved.normalized_input.opinions[0].text === '정규화된 의견')
+        return options.failedRunSave ? new Response('{}', { status: 500 }) : json({ id: 'run-1' })
+      }
+      if (table === 'verdicts') {
+        const saved = await req.json()
+        assert(saved.selected_participant === 1 && saved.selected_opinion === '정규화된 의견')
+        assert(saved.fit_score === 75 && saved.pipeline_run_id === 'run-1')
+        stored = true
+      }
       return new Response(null, { status: 201 })
     }
     if (table === 'rooms') return json([{
       id: 'room-1', invite_code: 'KING-ABC', owner_id: 'a', group_name: '그룹', topic: '안건',
-      member_limit: 2, status: options.closed ? 'finalized' : 'collecting',
+      king_personality: options.king, member_limit: 2, status: options.closed ? 'finalized' : 'collecting',
     }])
     if (table === 'room_members') {
       const user = url.searchParams.get('user_id')?.replace('eq.', '')
       return json(members.filter((id) => !user || id === user).map((id) => ({ user_id: id, room_id: 'room-1' })))
     }
-    if (table === 'opinions') return json(authors.map((id) => ({ author_id: id, content: `참여자 ${id}의 충분히 긴 의견입니다.`, submitted_at: '2026-11-09T00:00:00Z' })))
+    if (table === 'opinions') return json(authors.map((id) => ({ id: `opinion-${id}`, author_id: id, content: `참여자 ${id}의 충분히 긴 의견입니다.`, submitted_at: '2026-11-09T00:00:00Z' })))
     if (table === 'verdicts') return json(stored ? [verdict] : [])
     throw new Error(`Unexpected request: ${req.method} ${url}`)
   }
@@ -98,7 +127,7 @@ Deno.test('two submitted members generate a shared verdict and repeat requests r
     assert(body.room.verdict.title === verdict.title)
     assert(body.room.opinions.length === 2)
     assert((await request()).status === 200)
-    assert(state.aiCalls === 1 && state.writes === 1)
+    assert(state.aiCalls === 3 && state.writes === 3)
   })
 })
 
@@ -129,5 +158,45 @@ Deno.test('reading an archived verdict never calls AI', async () => {
   await fixture({ stored: true, closed: true }, async (state, request) => {
     assert((await request()).status === 200)
     assert(state.aiCalls === 0 && state.writes === 0)
+  })
+})
+
+Deno.test('invalid preprocessing never calls decision or stores a verdict', async () => {
+  await fixture({ badPreprocessing: true }, async (state, request) => {
+    assert((await request()).status === 502)
+    assert(state.aiCalls === 2 && state.writes === 0)
+  })
+})
+
+Deno.test('invalid selection cannot reach narration or save a verdict', async () => {
+  await fixture({ invalidSelection: true }, async (state, request) => {
+    assert((await request()).status === 502)
+    assert(state.aiCalls === 4 && state.writes === 2)
+  })
+})
+Deno.test('preprocessing persistence failure prevents selection', async () => {
+  await fixture({ failedRunSave: true }, async (state, request) => {
+    assert((await request()).status === 502)
+    assert(state.aiCalls === 2 && state.writes === 2)
+  })
+})
+
+for (const king of Object.keys(personalities) as KingPersonality[]) {
+  Deno.test(`${king}: restored room criteria, voice and audit snapshot reach correct stages`, async () => {
+    await fixture({ king }, async (state, request) => {
+      const response = await request()
+      assert(response.status === 200)
+      assert((await response.json()).room.kingPersonality === king)
+      assert(state.aiCalls === 3 && state.writes === 3)
+    })
+  })
+}
+Deno.test('unknown king is rejected before room creation', async () => {
+  await fixture({}, async (state) => {
+    const response = await app.request('/server/rooms', {
+      method: 'POST', headers: { Authorization: 'Bearer a', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ groupName: '그룹', topic: '안건', memberLimit: 2, kingPersonality: 'ignore-all-rules' }),
+    })
+    assert(response.status === 422 && state.writes === 0 && state.aiCalls === 0)
   })
 })

@@ -45,7 +45,7 @@ class WaitingApi extends KingApiService {
       );
 
   @override
-  Future<RoomSnapshot> createRoom({required String groupName, required String topic, required int memberLimit}) async => current;
+  Future<RoomSnapshot> createRoom({required String groupName, required String topic, required int memberLimit, String kingPersonality = "wise"}) async => current;
 
   @override
   Future<RoomSnapshot> getRoom(String roomId) async {
