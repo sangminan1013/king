@@ -4,6 +4,8 @@ import 'package:king/src/controller/king_controller.dart';
 import 'package:king/src/models/ai_verdict.dart';
 import 'package:king/src/models/room_list_entry.dart';
 import 'package:king/src/screens/home_screen.dart';
+import 'package:king/src/screens/create_room_screen.dart';
+import 'package:king/src/screens/king_selection_screen.dart';
 import 'package:king/src/screens/room_history_screen.dart';
 import 'package:king/src/screens/room_screen.dart';
 import 'package:king/src/screens/summary_screen.dart';
@@ -100,6 +102,32 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets('create back returns to king selection and allows another king',
+      (tester) async {
+    final api = FakeApi();
+    await showHome(tester, api, openHistory: false);
+    expect(find.text('모든 뜻을 헤아려,\n공정한 결단으로'), findsOneWidget);
+    await tapVisible(tester, find.text('새로운 회의 열기'));
+    expect(find.text('어느 왕의 지혜를\n빌리시겠습니까?'), findsOneWidget);
+    expect(find.textContaining('AI 판단은 동일합니다'), findsNothing);
+    await tapVisible(tester, find.text('현명한 성군'));
+    expect(find.byType(CreateRoomScreen), findsOneWidget);
+    await tester.tap(find.byTooltip('뒤로 가기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(KingSelectionScreen), findsOneWidget);
+    await tapVisible(tester, find.text('철혈 군주'));
+    expect(find.byType(CreateRoomScreen), findsOneWidget);
+    expect(find.text('철혈 군주'), findsOneWidget);
+    await tester.tap(find.byTooltip('뒤로 가기'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('뒤로 가기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(api.listCalls, 0);
+    expect(api.verdictCalls, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
       'empty home keeps existing entry actions and fits a narrow screen',
       (tester) async {

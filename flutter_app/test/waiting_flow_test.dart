@@ -120,6 +120,7 @@ void main() {
         find.byType(TextField), '모두의 조건을 고려할 수 있는 충분히 긴 의견입니다.');
     await tester.pump();
     await tester.ensureVisible(find.text('의견 봉인하기'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('의견 봉인하기'));
     await tester.pumpAndSettle();
     expect(find.byType(WaitingScreen), findsOneWidget);

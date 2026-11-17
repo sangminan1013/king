@@ -4,6 +4,7 @@ import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 import "create_room_screen.dart";
+import "king_selection_screen.dart";
 import "join_room_screen.dart";
 import "room_history_screen.dart";
 import "settings_screen.dart";
@@ -32,14 +33,14 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const RoyalCrest(),
           const SizedBox(height: 14),
-          const Kicker("A FAIR DECISION, TOGETHER"),
+          const Kicker("모두의 뜻을 모으는 어전"),
           const SizedBox(height: 10),
           Text("King",
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.displayLarge),
           const SizedBox(height: 20),
           Text(
-            "모두의 목소리를 모아\n공정한 하나의 답으로",
+            "모든 뜻을 헤아려,\n공정한 결단으로",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: const Color(0xFF5C4F40),
@@ -53,7 +54,12 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.add,
             onPressed: () {
               controller.reset();
-              open(CreateRoomScreen(controller: controller));
+              open(KingSelectionScreen(onSelected: (persona) {
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => CreateRoomScreen(
+                      controller: controller, persona: persona),
+                ));
+              }));
             },
           ),
           const SizedBox(height: 12),

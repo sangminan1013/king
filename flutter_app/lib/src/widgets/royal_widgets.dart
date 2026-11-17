@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
 import "../theme/king_theme.dart";
+import "korean_ornaments.dart";
 
 class RoyalScaffold extends StatelessWidget {
   const RoyalScaffold({
@@ -29,17 +30,20 @@ class RoyalScaffold extends StatelessWidget {
             colors: [Color(0xFFFFF9EA), KingColors.paper],
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              if (title != null)
-                RoyalHeader(
-                  title: title!,
-                  kicker: kicker ?? "THE COUNCIL",
-                  onBack: onBack,
-                ),
-              Expanded(child: child),
-            ],
+        child: CustomPaint(
+          painter: const TraditionalPattern(),
+          child: SafeArea(
+            child: Column(
+              children: [
+                if (title != null)
+                  RoyalHeader(
+                    title: title!,
+                    kicker: kicker ?? "THE COUNCIL",
+                    onBack: onBack,
+                  ),
+                Expanded(child: child),
+              ],
+            ),
           ),
         ),
       ),
@@ -103,7 +107,8 @@ class RoyalHeader extends StatelessWidget {
           SizedBox(
             width: 44,
             child: IconButton(
-              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
               color: const Color(0xFFF8EEDB),
               icon: const Icon(Icons.home_outlined),
               tooltip: "홈으로",
@@ -122,31 +127,10 @@ class RoyalCrest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = small ? 38.0 : 92.0;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Transform.rotate(
-            angle: 0.785398,
-            child: Container(
-              width: size * .64,
-              height: size * .64,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: small ? KingColors.goldLight : KingColors.gold,
-                ),
-              ),
-            ),
-          ),
-          Icon(
-            Icons.workspace_premium_outlined,
-            size: size * .55,
-            color: small ? KingColors.goldLight : KingColors.burgundy,
-          ),
-        ],
+    return Center(
+      child: KoreanCrown(
+        size: small ? 38 : 112,
+        color: small ? KingColors.goldLight : KingColors.gold,
       ),
     );
   }
@@ -196,7 +180,8 @@ class RoyalButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPrimary = style == RoyalButtonStyle.primary;
     final isGhost = style == RoyalButtonStyle.ghost;
-    final foreground = isPrimary ? const Color(0xFFFFF8E9) : KingColors.burgundyDark;
+    final foreground =
+        isPrimary ? const Color(0xFFFFF8E9) : KingColors.burgundyDark;
 
     return SizedBox(
       width: double.infinity,
@@ -211,9 +196,9 @@ class RoyalButton extends StatelessWidget {
                   ? Colors.transparent
                   : Colors.white.withOpacity(.28),
           side: BorderSide(
-            color: isPrimary || isGhost ? Colors.transparent : const Color(0xFFA88B64),
+            color: isGhost ? Colors.transparent : KingColors.gold,
           ),
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
         child: Row(
@@ -229,13 +214,14 @@ class RoyalButton extends StatelessWidget {
                     ? CrossAxisAlignment.center
                     : CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(label,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                   if (subtitle != null)
                     Text(
                       subtitle!,
                       style: TextStyle(
                         fontFamily: "sans-serif",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                         color: foreground.withOpacity(.7),
                       ),
@@ -272,12 +258,14 @@ class ChapterTitle extends StatelessWidget {
             width: 44,
             height: 44,
             alignment: Alignment.center,
-            decoration: BoxDecoration(border: Border.all(color: KingColors.gold)),
+            decoration:
+                BoxDecoration(border: Border.all(color: KingColors.gold)),
             child: Transform.rotate(
               angle: -.785398,
               child: Text(
                 number,
-                style: const TextStyle(color: KingColors.burgundy, fontSize: 18),
+                style:
+                    const TextStyle(color: KingColors.burgundy, fontSize: 18),
               ),
             ),
           ),

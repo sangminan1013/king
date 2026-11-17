@@ -4,11 +4,15 @@ import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 import "waiting_screen.dart";
+import "../theme/king_persona.dart";
+import "../widgets/korean_ornaments.dart";
 
 class RoomScreen extends StatefulWidget {
-  const RoomScreen({required this.controller, super.key});
+  const RoomScreen(
+      {required this.controller, this.persona = KingPersona.wise, super.key});
 
   final KingController controller;
+  final KingPersona persona;
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
@@ -71,6 +75,8 @@ class _RoomScreenState extends State<RoomScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 40),
         children: [
+          PersonaBanner(persona: widget.persona),
+          const SizedBox(height: 20),
           Row(
             children: [
               Container(
@@ -97,7 +103,7 @@ class _RoomScreenState extends State<RoomScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(21, 23, 21, 18),
             decoration: BoxDecoration(
-              color: KingColors.burgundyDark,
+              color: widget.persona.color,
               border: Border.all(color: KingColors.gold),
             ),
             child: Column(
@@ -137,16 +143,12 @@ class _RoomScreenState extends State<RoomScreen> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.22),
+              color: widget.persona.paper,
               border: Border.all(color: const Color(0x337B6248)),
             ),
             child: Column(
               children: [
-                const ChapterTitle(
-                  number: "II",
-                  chapter: "두 번째 장",
-                  title: "당신의 조건을 들려주세요",
-                ),
+                PersonaWritingHeading(persona: widget.persona),
                 const SizedBox(height: 24),
                 if (controller.hasSubmitted)
                   const Padding(
@@ -160,8 +162,8 @@ class _RoomScreenState extends State<RoomScreen> {
                     maxLines: 7,
                     maxLength: 300,
                     onChanged: controller.updateOpinion,
-                    decoration: const InputDecoration(
-                      hintText: "중요하게 생각하는 조건, 피하고 싶은 선택,\n원하는 결과를 자유롭게 적어주세요.",
+                    decoration: InputDecoration(
+                      hintText: widget.persona.hint,
                     ),
                   ),
                   const SizedBox(height: 5),

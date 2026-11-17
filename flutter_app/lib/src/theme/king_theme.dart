@@ -59,7 +59,7 @@ abstract final class KingTheme {
         bodySmall: TextStyle(
           color: KingColors.muted,
           fontFamily: "sans-serif",
-          fontSize: 10,
+          fontSize: 12,
           height: 1.55,
         ),
         labelLarge: TextStyle(

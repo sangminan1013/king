@@ -4,11 +4,15 @@ import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 import "room_screen.dart";
+import "../theme/king_persona.dart";
+import "../widgets/korean_ornaments.dart";
 
 class CreateRoomScreen extends StatefulWidget {
-  const CreateRoomScreen({required this.controller, super.key});
+  const CreateRoomScreen(
+      {required this.controller, this.persona = KingPersona.wise, super.key});
 
   final KingController controller;
+  final KingPersona persona;
 
   @override
   State<CreateRoomScreen> createState() => _CreateRoomScreenState();
@@ -47,6 +51,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
         children: [
+          PersonaBanner(persona: widget.persona),
+          const SizedBox(height: 24),
           const ChapterTitle(
             number: "I",
             chapter: "첫 번째 장",
@@ -90,8 +96,10 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("참여 인원", style: Theme.of(context).textTheme.labelLarge),
-                      Text("설정한 인원 모두 제출하면 평결이 시작됩니다", style: Theme.of(context).textTheme.bodySmall),
+                      Text("참여 인원",
+                          style: Theme.of(context).textTheme.labelLarge),
+                      Text("설정한 인원 모두 제출하면 평결이 시작됩니다",
+                          style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ),
@@ -102,7 +110,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () => widget.controller.changeMemberLimit(-1),
+                        onPressed: () =>
+                            widget.controller.changeMemberLimit(-1),
                         icon: const Icon(Icons.remove),
                         color: KingColors.burgundy,
                       ),
@@ -126,7 +135,8 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             padding: const EdgeInsets.all(14),
             decoration: const BoxDecoration(
               color: Color(0x14B98F42),
-              border: Border(left: BorderSide(color: KingColors.gold, width: 2)),
+              border:
+                  Border(left: BorderSide(color: KingColors.gold, width: 2)),
             ),
             child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +167,9 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                     if (!context.mounted || !created) return;
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => RoomScreen(controller: widget.controller),
+                        builder: (_) => RoomScreen(
+                            controller: widget.controller,
+                            persona: widget.persona),
                       ),
                     );
                   }
