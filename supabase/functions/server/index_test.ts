@@ -24,6 +24,7 @@ async function fixture(
   const members = options.members ?? ['a', 'b']
   const authors = options.authors ?? ['a', 'b']
   let stored = options.stored ?? false
+  let finalized = options.closed ?? false
   const state = { aiCalls: 0, writes: 0 }
   const originalFetch = globalThis.fetch
   const json = (data: unknown) => new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } })
@@ -56,6 +57,10 @@ async function fixture(
     const table = url.pathname.split('/').at(-1)
     if (req.method !== 'GET') {
       state.writes++
+      if (table === 'rooms' && req.method === 'PATCH') {
+        finalized = true
+        return json({ id: 'room-1', owner_id: 'a', member_limit: 2, status: 'finalized', finalized_at: '2026-11-17T01:00:00Z' })
+      }
       if (table === 'decision_runs' && req.method === 'POST') {
         const saved = await req.json()
         assert(saved.king_personality === (options.king ?? 'wise'))
@@ -74,7 +79,7 @@ async function fixture(
     }
     if (table === 'rooms') return json([{
       id: 'room-1', invite_code: 'KING-ABC', owner_id: 'a', group_name: '그룹', topic: '안건',
-      king_personality: options.king, member_limit: 2, status: options.closed ? 'finalized' : 'collecting',
+      king_personality: options.king, member_limit: 2, status: finalized ? 'finalized' : 'collecting', finalized_at: finalized ? '2026-11-17T01:00:00Z' : null,
     }])
     if (table === 'room_members') {
       const user = url.searchParams.get('user_id')?.replace('eq.', '')
@@ -198,5 +203,23 @@ Deno.test('unknown king is rejected before room creation', async () => {
       body: JSON.stringify({ groupName: '그룹', topic: '안건', memberLimit: 2, kingPersonality: 'ignore-all-rules' }),
     })
     assert(response.status === 422 && state.writes === 0 && state.aiCalls === 0)
+  })
+})
+
+Deno.test('finalize is owner-only and idempotent, returning confirmation time', async () => {
+  await fixture({ stored: true }, async (state, request) => {
+    assert((await request('finalize', 'POST', 'b')).status === 403)
+    const first = await request('finalize')
+    assert(first.status === 200)
+    const room = (await first.json()).room
+    assert(room.status === 'finalized' && room.finalizedAt === '2026-11-17T01:00:00Z')
+    assert((await request('finalize')).status === 200)
+    assert(state.writes === 1 && state.aiCalls === 0)
+  })
+})
+Deno.test('cannot finalize without a verdict', async () => {
+  await fixture({}, async (state, request) => {
+    assert((await request('finalize')).status === 409)
+    assert(state.writes === 0)
   })
 })

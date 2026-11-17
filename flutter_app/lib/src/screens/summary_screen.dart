@@ -92,30 +92,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          RoyalButton(
-            label: controller.isRecordSaved
-                ? "기록이 저장되었습니다"
-                : controller.isSavingRecord
-                    ? "저장하는 중..."
-                    : "기록 저장하기",
-            icon: controller.isRecordSaved ? Icons.check : Icons.save_alt,
-            style: RoyalButtonStyle.secondary,
-            onPressed: controller.isRecordSaved || controller.isSavingRecord
-                ? null
-                : () async {
-                    await controller.saveDecision();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          controller.isRecordSaved
-                              ? "Supabase에 최종 기록을 저장했습니다."
-                              : controller.roomError ?? "기록을 저장하지 못했습니다.",
-                        ),
-                      ),
-                    );
-                  },
-          ),
+          const Text("확정된 결정입니다.", textAlign: TextAlign.center),
+          if (controller.finalizedAt != null)
+            Text("확정 시각: ${controller.finalizedAt!.toLocal().toString().split('.').first}",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           RoyalButton(
             label: "처음으로 돌아가기",

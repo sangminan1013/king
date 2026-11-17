@@ -157,7 +157,7 @@ class _VerdictContent extends StatelessWidget {
               child: RoyalButton(
                 label: "다른 안건 시작",
                 style: RoyalButtonStyle.secondary,
-                onPressed: () {
+                onPressed: controller.isSavingRecord ? null : () {
                   controller.startAnotherDecision();
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute<void>(
@@ -171,16 +171,37 @@ class _VerdictContent extends StatelessWidget {
             const SizedBox(width: 9),
             Expanded(
               child: RoyalButton(
-                label: "결정 확정하기",
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => SummaryScreen(controller: controller),
-                  ),
-                ),
+                label: controller.isRecordSaved ? "최종 기록 보기"
+                    : controller.isSavingRecord ? "확정하는 중..." : "결정 확정하기",
+                onPressed: controller.isSavingRecord || (!controller.isOwner && !controller.isRecordSaved)
+                    ? null : () async {
+                  final confirmed = await controller.saveDecision();
+                  if (!context.mounted) return;
+                  if (!confirmed) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(controller.roomError ?? "결정을 확정하지 못했습니다.")));
+                    return;
+                  }
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => SummaryScreen(controller: controller)));
+                },
               ),
             ),
           ],
         ),
+        if (!controller.isOwner && !controller.isRecordSaved) ...[
+          const SizedBox(height: 12),
+          const Text("방장의 결정 확정을 기다리고 있습니다.", textAlign: TextAlign.center),
+          RoyalButton(label: "확정 상태 확인", style: RoyalButtonStyle.ghost,
+            onPressed: controller.isRoomBusy ? null : () async {
+              await controller.refreshRoom();
+              if (!context.mounted) return;
+              if (controller.isRecordSaved) {
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => SummaryScreen(controller: controller)));
+              }
+            }),
+        ],
         const SizedBox(height: 18),
         Text(
           "AI의 평결은 참여자 의견을 바탕으로 한 제안이며, 중요한 결정은 함께 다시 검토해 주세요.",

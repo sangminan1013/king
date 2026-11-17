@@ -23,6 +23,7 @@ class RoomSnapshot {
     required this.opinions,
     this.verdict,
     this.kingPersonality = "wise",
+    this.finalizedAt,
   });
 
   final String id;
@@ -38,11 +39,13 @@ class RoomSnapshot {
   final bool hasSubmitted;
   final List<String> opinions;
   final AiVerdict? verdict;
+  final DateTime? finalizedAt;
 
   factory RoomSnapshot.fromJson(Map<String, dynamic> json) {
     final rawOpinions = json["opinions"];
     final rawVerdict = json["verdict"];
     return RoomSnapshot(
+      finalizedAt: DateTime.tryParse(json["finalizedAt"]?.toString() ?? ""),
       kingPersonality: json["kingPersonality"]?.toString() ?? "wise",
       id: json["id"]?.toString() ?? "",
       code: json["code"]?.toString() ?? "",
