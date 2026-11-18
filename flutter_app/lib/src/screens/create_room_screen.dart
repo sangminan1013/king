@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
 import "../controller/king_controller.dart";
+import "../models/king_personality.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 import "room_screen.dart";
@@ -121,6 +122,35 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+          Text("판결을 내릴 왕", style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Text("왕마다 먼저 살피는 기준과 판결의 말투가 다릅니다.",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<KingPersonality>(
+            key: ValueKey(widget.controller.kingPersonality),
+            initialValue: widget.controller.kingPersonality,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: "왕의 성격"),
+            items: KingPersonality.values.map((king) => DropdownMenuItem(
+                value: king, child: Text(king.label))).toList(),
+            onChanged: widget.controller.isRoomBusy ? null : (king) {
+              if (king != null) widget.controller.selectKing(king);
+            },
+          ),
+          const SizedBox(height: 12),
+          Text(widget.controller.kingPersonality.character,
+              style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(widget.controller.kingPersonality.priorities,
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 6),
+          Text("어울리는 상황: ${widget.controller.kingPersonality.situations}",
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          Text("“${widget.controller.kingPersonality.example}”",
+              style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(14),

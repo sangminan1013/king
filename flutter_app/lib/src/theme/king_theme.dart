@@ -13,6 +13,15 @@ abstract final class KingColors {
 }
 
 abstract final class KingTheme {
+  static const decisionSummary = TextStyle(
+    fontFamily: "sans-serif",
+    fontSize: 20,
+    fontWeight: FontWeight.w800,
+    height: 1.6,
+    letterSpacing: -0.2,
+    color: KingColors.burgundyDark,
+  );
+
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
       seedColor: KingColors.burgundy,

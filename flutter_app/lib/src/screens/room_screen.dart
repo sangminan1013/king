@@ -67,7 +67,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
     return RoyalScaffold(
       title: controller.groupName,
-      kicker: "ROOM · ${controller.roomCode}",
+      kicker: "${controller.kingPersonality.label} · ${controller.roomCode}",
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 40),
         children: [

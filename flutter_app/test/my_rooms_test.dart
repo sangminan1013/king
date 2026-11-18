@@ -151,11 +151,8 @@ void main() {
     expect(find.text('저장된 결정'), findsOneWidget);
     expect(find.text('참여자 2명'), findsOneWidget);
     expect(api.verdictCalls, 0);
-    final save = tester.widget<OutlinedButton>(
-      find.ancestor(
-          of: find.text('기록이 저장되었습니다'), matching: find.byType(OutlinedButton)),
-    );
-    expect(save.onPressed, isNull);
+    expect(find.text('확정된 결정입니다.'), findsOneWidget);
+    expect(find.text('기록 저장하기'), findsNothing);
   });
 
   testWidgets('room access failure stays in history', (tester) async {

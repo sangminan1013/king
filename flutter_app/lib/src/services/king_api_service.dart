@@ -22,12 +22,15 @@ class RoomSnapshot {
     required this.hasSubmitted,
     required this.opinions,
     this.verdict,
+    this.kingPersonality = "wise",
+    this.finalizedAt,
   });
 
   final String id;
   final String code;
   final String groupName;
   final String topic;
+  final String kingPersonality;
   final int memberLimit;
   final int memberCount;
   final int submittedCount;
@@ -36,11 +39,14 @@ class RoomSnapshot {
   final bool hasSubmitted;
   final List<String> opinions;
   final AiVerdict? verdict;
+  final DateTime? finalizedAt;
 
   factory RoomSnapshot.fromJson(Map<String, dynamic> json) {
     final rawOpinions = json["opinions"];
     final rawVerdict = json["verdict"];
     return RoomSnapshot(
+      finalizedAt: DateTime.tryParse(json["finalizedAt"]?.toString() ?? ""),
+      kingPersonality: json["kingPersonality"]?.toString() ?? "wise",
       id: json["id"]?.toString() ?? "",
       code: json["code"]?.toString() ?? "",
       groupName: json["groupName"]?.toString() ?? "",
@@ -109,6 +115,7 @@ class KingApiService {
     required String groupName,
     required String topic,
     required int memberLimit,
+    String kingPersonality = "wise",
   }) {
     return _roomRequest(
       "POST",
@@ -117,6 +124,7 @@ class KingApiService {
         "groupName": groupName,
         "topic": topic,
         "memberLimit": memberLimit,
+        "kingPersonality": kingPersonality,
       },
     );
   }

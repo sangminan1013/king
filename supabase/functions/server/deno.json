@@ -6,6 +6,6 @@
   "nodeModulesDir": "none",
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-env --allow-net index_test.ts"
+    "test": "deno test --allow-env --allow-net index_test.ts preprocessing_test.ts selection_test.ts privacy_test.ts"
   }
 }

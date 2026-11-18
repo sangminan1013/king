@@ -23,16 +23,22 @@ class AiVerdict {
     required this.summary,
     required this.fitScore,
     required this.reasons,
+    this.selectedParticipant,
+    this.selectedOpinion,
   });
 
   final String title;
   final String summary;
   final int fitScore;
   final List<VerdictReason> reasons;
+  final int? selectedParticipant;
+  final String? selectedOpinion;
 
   factory AiVerdict.fromJson(Map<String, dynamic> json) {
     final rawReasons = json["reasons"];
     return AiVerdict(
+      selectedParticipant: (json["selectedParticipant"] as num?)?.toInt(),
+      selectedOpinion: json["selectedOpinion"]?.toString(),
       title: json["title"]?.toString() ?? "",
       summary: json["summary"]?.toString() ?? "",
       fitScore:
@@ -49,6 +55,8 @@ class AiVerdict {
   Map<String, dynamic> toJson() => {
         "title": title,
         "summary": summary,
+        "selectedParticipant": selectedParticipant,
+        "selectedOpinion": selectedOpinion,
         "fitScore": fitScore,
         "reasons": reasons.map((reason) => reason.toJson()).toList(),
       };

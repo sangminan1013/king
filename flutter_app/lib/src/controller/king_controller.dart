@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 
 import "../data/demo_data.dart";
 import "../models/ai_verdict.dart";
+import "../models/king_personality.dart";
 import "../models/room_list_entry.dart";
 import "../services/king_api_service.dart";
 
@@ -13,6 +14,7 @@ class KingController extends ChangeNotifier {
   String groupName = DemoData.groupName;
   String topic = DemoData.topic;
   int memberLimit = 5;
+  KingPersonality kingPersonality = KingPersonality.wise;
   int memberCount = 0;
   int submittedCount = 0;
   String opinion = "";
@@ -27,6 +29,7 @@ class KingController extends ChangeNotifier {
   bool isGeneratingVerdict = false;
   bool isSavingRecord = false;
   bool isRecordSaved = false;
+  DateTime? finalizedAt;
   bool isRoomBusy = false;
   List<String> opinions = const [];
 
@@ -45,6 +48,12 @@ class KingController extends ChangeNotifier {
 
   void updateGroupName(String value) {
     groupName = value;
+    notifyListeners();
+  }
+
+  void selectKing(KingPersonality value) {
+    if (isRoomBusy) return;
+    kingPersonality = value;
     notifyListeners();
   }
 
@@ -69,6 +78,7 @@ class KingController extends ChangeNotifier {
         groupName: groupName,
         topic: topic,
         memberLimit: memberLimit,
+        kingPersonality: kingPersonality.id,
       );
       _apply(snapshot);
     });
@@ -148,18 +158,29 @@ class KingController extends ChangeNotifier {
     }
   }
 
-  Future<void> saveDecision() async {
+  Future<bool> saveDecision() async {
     final id = roomId;
-    if (id == null || verdict == null || isSavingRecord || isRecordSaved) {
-      return;
+    if (isRecordSaved) return true;
+    if (id == null || verdict == null || !isOwner || isSavingRecord) {
+      return false;
     }
+    roomError = null;
     isSavingRecord = true;
     notifyListeners();
     try {
-      _apply(await _api.finalizeRoom(id));
-      isRecordSaved = true;
+      final snapshot = await _api.finalizeRoom(id);
+      if (roomId != id) return false;
+      _apply(snapshot);
+      if (!isRecordSaved) {
+        roomError = "결정 확정 상태를 확인하지 못했습니다. 다시 시도해 주세요.";
+      }
+      return isRecordSaved;
     } on KingApiException catch (error) {
       roomError = error.message;
+      return false;
+    } catch (_) {
+      roomError = "결정을 확정하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.";
+      return false;
     } finally {
       isSavingRecord = false;
       notifyListeners();
@@ -167,6 +188,7 @@ class KingController extends ChangeNotifier {
   }
 
   void startAnotherDecision() {
+    kingPersonality = KingPersonality.wise;
     topic = "";
     opinion = "";
     roomId = null;
@@ -180,6 +202,7 @@ class KingController extends ChangeNotifier {
     verdictError = null;
     roomError = null;
     isRecordSaved = false;
+    finalizedAt = null;
     opinions = const [];
     notifyListeners();
   }
@@ -212,6 +235,8 @@ class KingController extends ChangeNotifier {
   }
 
   void _apply(RoomSnapshot snapshot) {
+    kingPersonality = KingPersonality.fromId(snapshot.kingPersonality);
+    finalizedAt = snapshot.finalizedAt;
     roomId = snapshot.id;
     roomCode = snapshot.code;
     groupName = snapshot.groupName;

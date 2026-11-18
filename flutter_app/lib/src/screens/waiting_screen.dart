@@ -76,7 +76,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
     final error = controller.roomError ?? controller.verdictError;
     return RoyalScaffold(
       title: "평결 대기",
-      kicker: "ROOM · ${controller.roomCode}",
+      kicker: "${controller.kingPersonality.label} · ${controller.roomCode}",
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
         children: [

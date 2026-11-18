@@ -21,3 +21,9 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# Flutter-generated caches and local state
+flutter_app/.dart_tool/
+flutter_app/build/
+flutter_app/.flutter-plugins*
+supabase/.temp/
