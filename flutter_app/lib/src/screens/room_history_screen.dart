@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../models/room_list_entry.dart";
 import "../services/king_api_service.dart";
@@ -49,8 +51,8 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
       if (!mounted) return;
       setState(() {
         error = exception is KingApiException
-            ? exception.message
-            : "회의 목록을 불러오지 못했습니다. 다시 시도해 주세요.";
+            ? (exception.displayKey ?? exception.message)
+            : "ui:historyError";
       });
     } finally {
       if (mounted) setState(() => loading = false);
@@ -76,21 +78,21 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
           : RoomScreen(controller: controller));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(controller.roomError ?? "회의를 열지 못했습니다.")),
+        SnackBar(
+            content: Text(context.strings.errorMessage(
+                controller.roomError ?? context.strings.openRoomError))),
       );
     }
     if (mounted) setState(() => openingId = null);
   }
 
-  String dateLabel(DateTime value) {
-    final date = value.toLocal();
-    return "${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}";
-  }
-
   Widget roomTile(RoomListEntry room) {
+    final l = context.strings;
+    final status = room.isFinalized ? l.archivedStatus : l.activeStatus;
+    final date = formatCourtDate(context, room.finalizedAt ?? room.createdAt);
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      color: const Color(0x66FFFFFF),
+      color: KingColors.paperLight,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         enabled: openingId == null,
@@ -104,12 +106,12 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
             Text(room.topic, maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 7),
             Text(
-              "${room.isFinalized ? '종료 · 기록 보기' : '진행 중 · 다시 입장'}${room.isOwner ? ' · 방장' : ''}",
+              room.isOwner ? "$status · ${l.host}" : status,
               style: const TextStyle(
                   color: KingColors.burgundy, fontWeight: FontWeight.w700),
             ),
             Text(
-                "${room.code} · ${room.isFinalized ? '확정' : '생성'} ${dateLabel(room.finalizedAt ?? room.createdAt)}"),
+                "${room.code} · ${room.isFinalized ? l.finalizedAt(date) : l.createdAt(date)}"),
           ],
         ),
         trailing: openingId == room.id
@@ -124,9 +126,9 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     return RoyalScaffold(
-      title: "회의 기록",
-      kicker: "MY COUNCILS",
+      title: l.history,
       child: RefreshIndicator(
         onRefresh: () => loadRooms(),
         child: ListView(
@@ -136,10 +138,10 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
             Row(
               children: [
                 Expanded(
-                    child: Text("내 회의",
+                    child: Text(l.myCourts,
                         style: Theme.of(context).textTheme.headlineMedium)),
                 IconButton(
-                  tooltip: "회의 목록 새로고침",
+                  tooltip: l.refreshCourts,
                   onPressed:
                       loading || openingId != null ? null : () => loadRooms(),
                   icon: const Icon(Icons.refresh),
@@ -147,7 +149,7 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
               ],
             ),
             Text(
-              "참여한 회의와 이전 기록을 코드 없이 다시 열 수 있어요.",
+              l.reopenCourts,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -156,27 +158,27 @@ class _RoomHistoryScreenState extends State<RoomHistoryScreen> {
                   padding: EdgeInsets.all(24),
                   child: Center(child: CircularProgressIndicator())),
             if (!loading && error == null && rooms.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Text("아직 참여한 회의가 없어요.\n회의를 만들거나 초대 코드로 입장해 보세요.",
-                    textAlign: TextAlign.center),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(l.noCourts, textAlign: TextAlign.center),
               ),
             ...rooms.map(roomTile),
             if (error != null) ...[
-              Text(error!, style: const TextStyle(color: KingColors.burgundy)),
+              Text(l.errorMessage(error!),
+                  style: const TextStyle(color: KingColors.burgundy)),
               TextButton(
                   onPressed: loading ? null : () => loadRooms(),
-                  child: const Text("목록 다시 불러오기")),
+                  child: Text(l.reloadCourts)),
             ],
             if (rooms.isNotEmpty && hasMore)
               TextButton(
                 onPressed: loading || openingId != null
                     ? null
                     : () => loadRooms(more: true),
-                child: Text(loading ? "불러오는 중..." : "이전 회의 더 보기"),
+                child: Text(loading ? l.loading : l.moreCourts),
               ),
             const SizedBox(height: 10),
-            const PrivacyNote("현재 게스트 세션의 기록입니다. 세션을 잃으면 목록을 복구할 수 없어요."),
+            PrivacyNote(l.historyPrivacy),
           ],
         ),
       ),

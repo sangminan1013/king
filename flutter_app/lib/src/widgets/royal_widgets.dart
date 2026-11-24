@@ -1,7 +1,10 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
+import "../../l10n/strings.dart";
+import "../models/king_personality.dart";
 import "../theme/king_theme.dart";
+import "court_art.dart";
 
 class RoyalScaffold extends StatelessWidget {
   const RoyalScaffold({
@@ -20,28 +23,39 @@ class RoyalScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: KingColors.paper,
-          gradient: RadialGradient(
-            center: Alignment.topCenter,
-            radius: 1.2,
-            colors: [Color(0xFFFFF9EA), KingColors.paper],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const RepaintBoundary(child: CourtArt(CourtMotif.paper)),
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 130,
+            child: Opacity(opacity: .18, child: CourtArt(CourtMotif.landscape)),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              if (title != null)
-                RoyalHeader(
-                  title: title!,
-                  kicker: kicker ?? "THE COUNCIL",
-                  onBack: onBack,
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(
+                  width: double.infinity,
+                  height: 14,
+                  child: CourtArt(CourtMotif.eave),
                 ),
-              Expanded(child: child),
-            ],
+                if (title != null)
+                  RoyalHeader(title: title!, kicker: kicker, onBack: onBack),
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 620),
+                      child: SizedBox.expand(child: child),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -50,20 +64,20 @@ class RoyalScaffold extends StatelessWidget {
 class RoyalHeader extends StatelessWidget {
   const RoyalHeader({
     required this.title,
-    required this.kicker,
+    this.kicker,
     this.onBack,
     super.key,
   });
 
   final String title;
-  final String kicker;
+  final String? kicker;
   final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 86,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      constraints: const BoxConstraints(minHeight: 68),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: const BoxDecoration(
         color: KingColors.burgundyDark,
         border: Border(
@@ -76,26 +90,25 @@ class RoyalHeader extends StatelessWidget {
             width: 44,
             child: IconButton(
               onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-              color: const Color(0xFFF8EEDB),
+              color: KingColors.paperLight,
               icon: const Icon(Icons.chevron_left),
-              tooltip: "뒤로 가기",
+              tooltip: context.strings.back,
             ),
           ),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Kicker(kicker, light: true),
-                const SizedBox(height: 3),
+                if (kicker case final caption?) Kicker(caption, light: true),
                 Text(
                   title,
-                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFFF8EEDB),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: KingColors.paperLight),
                 ),
               ],
             ),
@@ -103,10 +116,11 @@ class RoyalHeader extends StatelessWidget {
           SizedBox(
             width: 44,
             child: IconButton(
-              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-              color: const Color(0xFFF8EEDB),
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
+              color: KingColors.paperLight,
               icon: const Icon(Icons.home_outlined),
-              tooltip: "홈으로",
+              tooltip: context.strings.home,
             ),
           ),
         ],
@@ -122,34 +136,220 @@ class RoyalCrest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = small ? 38.0 : 92.0;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
+    final size = small ? 36.0 : 54.0;
+    return Center(
+      child: SizedBox.square(
+          dimension: size, child: const CourtArt(CourtMotif.seal)),
+    );
+  }
+}
+
+class CourtHero extends StatelessWidget {
+  const CourtHero({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.strings;
+    final text = Theme.of(context).textTheme;
+    return RoyalPanel(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Transform.rotate(
-            angle: 0.785398,
-            child: Container(
-              width: size * .64,
-              height: size * .64,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: small ? KingColors.goldLight : KingColors.gold,
-                ),
-              ),
+          const SizedBox(height: 12, child: CourtArt(CourtMotif.eave)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 2),
+            child: Column(
+              children: [
+                const RoyalCrest(small: true),
+                const SizedBox(height: 10),
+                Text(l.brand,
+                    textAlign: TextAlign.center, style: text.displayLarge),
+                const SizedBox(height: 10),
+                Text(l.slogan,
+                    textAlign: TextAlign.center, style: text.titleMedium),
+              ],
             ),
           ),
-          Icon(
-            Icons.workspace_premium_outlined,
-            size: size * .55,
-            color: small ? KingColors.goldLight : KingColors.burgundy,
-          ),
+          const AspectRatio(
+              aspectRatio: 3.6, child: CourtArt(CourtMotif.landscape)),
         ],
       ),
     );
   }
+}
+
+enum RoyalPanelStyle { paper, decree }
+
+class RoyalPanel extends StatelessWidget {
+  const RoyalPanel({
+    required this.child,
+    this.style = RoyalPanelStyle.paper,
+    this.padding = const EdgeInsets.all(18),
+    super.key,
+  });
+
+  final Widget child;
+  final RoyalPanelStyle style;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDecree = style == RoyalPanelStyle.decree;
+    return Material(
+      color: KingColors.paperLight,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+        side: BorderSide(color: KingColors.gold),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isDecree) const _ScrollEdge(),
+          Padding(padding: padding, child: child),
+          if (isDecree) const _ScrollEdge(),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScrollEdge extends StatelessWidget {
+  const _ScrollEdge();
+
+  @override
+  Widget build(BuildContext context) => const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: [KingColors.brown, KingColors.gold, KingColors.brown]),
+          border: Border(bottom: BorderSide(color: KingColors.goldLight)),
+        ),
+        child: SizedBox(height: 8),
+      );
+}
+
+class KingPicker extends StatelessWidget {
+  const KingPicker(
+      {required this.selected, required this.onSelected, super.key});
+
+  final KingPersonality selected;
+  final ValueChanged<KingPersonality>? onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.strings;
+    final text = Theme.of(context).textTheme;
+    final profile = l.profile(selected);
+    return RoyalPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const gap = 8.0;
+              final columns = constraints.maxWidth >= 500
+                  ? 5
+                  : constraints.maxWidth >= 330
+                      ? 3
+                      : 2;
+              final tileWidth =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  for (final king in KingPersonality.values)
+                    SizedBox(
+                      width: tileWidth,
+                      child: _KingPortraitTile(
+                        key: ValueKey(king),
+                        king: king,
+                        name: l.profile(king).name,
+                        selected: selected == king,
+                        onPressed:
+                            onSelected == null ? null : () => onSelected!(king),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          const Divider(color: KingColors.subtleBorder, height: 1),
+          const SizedBox(height: 12),
+          Text(profile.name, style: text.titleMedium),
+          Text(profile.character, style: text.bodySmall),
+          const SizedBox(height: 5),
+          Text(profile.priorities, style: text.bodyMedium),
+          const SizedBox(height: 10),
+          Text(l.kingSituation(profile.situations), style: text.bodySmall),
+          const SizedBox(height: 6),
+          Text(l.kingExample(profile.example), style: text.bodyMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _KingPortraitTile extends StatelessWidget {
+  const _KingPortraitTile({
+    required this.king,
+    required this.name,
+    required this.selected,
+    required this.onPressed,
+    super.key,
+  });
+
+  final KingPersonality king;
+  final String name;
+  final bool selected;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      selected: selected,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.fromLTRB(5, 8, 5, 8),
+          backgroundColor: selected ? KingColors.paperDeep : KingColors.paper,
+          foregroundColor: KingColors.burgundyDark,
+          side: BorderSide(
+            color: selected ? KingColors.burgundy : KingColors.gold,
+            width: selected ? 1.5 : 1,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        onPressed: onPressed,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 48,
+              height: 55,
+              child: CourtArt(CourtMotif.portrait, portraitVariant: king.index),
+            ),
+            const SizedBox(height: 6),
+            Text(name, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String formatCourtDate(BuildContext context, DateTime date,
+    {bool showTime = false}) {
+  final format = MaterialLocalizations.of(context);
+  final local = date.toLocal();
+  final day = format.formatShortDate(local);
+  if (!showTime) return day;
+  final time = format.formatTimeOfDay(
+    TimeOfDay.fromDateTime(local),
+    alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+  );
+  return "$day · $time";
 }
 
 class Kicker extends StatelessWidget {
@@ -165,10 +365,10 @@ class Kicker extends StatelessWidget {
       textAlign: TextAlign.center,
       style: TextStyle(
         color: light ? KingColors.goldLight : KingColors.burgundy,
-        fontFamily: "sans-serif",
-        fontSize: 9,
+        fontFamily: KingTheme.sans,
+        fontSize: 11,
         fontWeight: FontWeight.w700,
-        letterSpacing: 1.8,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -196,7 +396,8 @@ class RoyalButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPrimary = style == RoyalButtonStyle.primary;
     final isGhost = style == RoyalButtonStyle.ghost;
-    final foreground = isPrimary ? const Color(0xFFFFF8E9) : KingColors.burgundyDark;
+    final foreground =
+        isPrimary ? KingColors.paperLight : KingColors.burgundyDark;
 
     return SizedBox(
       width: double.infinity,
@@ -209,11 +410,12 @@ class RoyalButton extends StatelessWidget {
               ? KingColors.burgundy
               : isGhost
                   ? Colors.transparent
-                  : Colors.white.withOpacity(.28),
+                  : KingColors.paperLight,
           side: BorderSide(
-            color: isPrimary || isGhost ? Colors.transparent : const Color(0xFFA88B64),
+            color: isGhost ? Colors.transparent : KingColors.gold,
           ),
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4))),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
         child: Row(
@@ -229,15 +431,16 @@ class RoyalButton extends StatelessWidget {
                     ? CrossAxisAlignment.center
                     : CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(label,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                   if (subtitle != null)
                     Text(
                       subtitle!,
                       style: TextStyle(
-                        fontFamily: "sans-serif",
-                        fontSize: 10,
+                        fontFamily: KingTheme.sans,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
-                        color: foreground.withOpacity(.7),
+                        color: foreground.withValues(alpha: .9),
                       ),
                     ),
                 ],
@@ -246,63 +449,6 @@ class RoyalButton extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class ChapterTitle extends StatelessWidget {
-  const ChapterTitle({
-    required this.number,
-    required this.chapter,
-    required this.title,
-    super.key,
-  });
-
-  final String number;
-  final String chapter;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Transform.rotate(
-          angle: .785398,
-          child: Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(border: Border.all(color: KingColors.gold)),
-            child: Transform.rotate(
-              angle: -.785398,
-              child: Text(
-                number,
-                style: const TextStyle(color: KingColors.burgundy, fontSize: 18),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 17),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                chapter,
-                style: const TextStyle(
-                  color: KingColors.burgundy,
-                  fontFamily: "sans-serif",
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(title, style: Theme.of(context).textTheme.headlineMedium),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -350,30 +496,32 @@ class _InviteCodeTileState extends State<InviteCodeTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.28),
-        border: Border.all(color: const Color(0xFFB9A687)),
-      ),
+    final l = context.strings;
+    return RoyalPanel(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       child: Row(
         children: [
-          Text("초대 코드", style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              widget.code,
-              style: const TextStyle(
-                color: KingColors.burgundy,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.5,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l.inviteCode,
+                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  widget.code,
+                  style: const TextStyle(
+                    color: KingColors.burgundy,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
           TextButton.icon(
             onPressed: copy,
             icon: Icon(copied ? Icons.check : Icons.copy_outlined, size: 17),
-            label: Text(copied ? "복사됨" : "복사"),
+            label: Text(copied ? l.copied : l.copy),
           ),
         ],
       ),

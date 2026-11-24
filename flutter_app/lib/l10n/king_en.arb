@@ -1,0 +1,215 @@
+{
+  "@@locale": "en",
+  "brand": "KING",
+  "slogan": "A Court of Wisdom",
+  "royalCourt": "Royal Court",
+  "courtSettings": "Settings",
+  "language": "Language",
+  "languageDescription": "Choose the language used throughout the app.",
+  "english": "English",
+  "korean": "한국어 (Korean)",
+  "languageSaveError": "Your language preference could not be saved. Please try again.",
+  "home": "Home",
+  "back": "Back",
+  "signOut": "Sign Out",
+  "guestHeading": "Enter the court anonymously",
+  "guestDescription": "A secure guest session starts without signing up. Your identity stays private when you submit a petition.",
+  "guestWarning": "Your guest session stays on this device. Signing out or clearing app data removes access to that identity.",
+  "guestLoading": "Opening your guest session…",
+  "guestEnter": "Enter as a Guest",
+  "guestError": "Could not start a guest session. Check your connection and try again.",
+  "guestDisabled": "Guest sign-in is currently unavailable.",
+  "guestRateLimited": "Too many sign-in attempts. Please try again later.",
+  "convene": "Convene a Court",
+  "conveneDescription": "Set the agenda and invite your group.",
+  "enterCourt": "Enter the Royal Court",
+  "enterDescription": "Join by invitation and share your opinion anonymously.",
+  "history": "Court Records",
+  "historyDescription": "Reopen your courts and revisit past decisions.",
+  "createHeading": "Set the agenda",
+  "groupName": "Court name",
+  "topic": "Decision topic",
+  "demoGroup": "Friday Expedition",
+  "demoTopic": "Where should we hold this quarter’s team workshop?",
+  "members": "Court Members",
+  "membersDescription": "Deliberation begins once every member has submitted a petition.",
+  "memberCount": "{count, plural, one{1 member} other{{count} members}}",
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fewerMembers": "Remove one member",
+  "moreMembers": "Add one member",
+  "chooseKing": "Choose Your King",
+  "chooseKingDescription": "Each king weighs different priorities and speaks in a distinct voice.",
+  "kingSituation": "Best for: {situations}",
+  "@kingSituation": {
+    "placeholders": {
+      "situations": {
+        "type": "String"
+      }
+    }
+  },
+  "kingExample": "“{example}”",
+  "@kingExample": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "petitionPrivacy": "Individual petitions stay private. Deliberation begins once everyone has submitted.",
+  "yourPetition": "Your petition",
+  "creating": "Convening the court…",
+  "joinHeading": "Enter your invitation code",
+  "joinDescription": "Use the eight-character code shared by the host.",
+  "inviteCode": "Invitation code",
+  "inviteHint": "e.g. KING-ABC",
+  "joining": "Checking your invitation code…",
+  "joinPrivacy": "Your name and account details are private.",
+  "copy": "Copy",
+  "copied": "Copied",
+  "receiving": "Accepting petitions",
+  "todayTopic": "Today’s agenda",
+  "submittedCount": "{count, plural, one{1 member has submitted a petition} other{{count} members have submitted petitions}}",
+  "@submittedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "submitPetition": "Submit a Petition",
+  "petitionHeading": "Tell the court what matters to you",
+  "petitionHint": "Share what matters, what to avoid, and what outcome you would like.",
+  "petitionLocked": "Once submitted, your petition is anonymous and cannot be edited.",
+  "sealing": "Sealing your petition…",
+  "movingToWaiting": "Opening the deliberation screen…",
+  "deliberation": "Royal Deliberation",
+  "deliberating": "The King Is Deliberating",
+  "sealed": "Your petition is sealed",
+  "submissionStatus": "Petitions submitted: {submitted} of {total}",
+  "@submissionStatus": {
+    "placeholders": {
+      "submitted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "allSubmitted": "Everyone has submitted. The verdict will appear here when it is ready.",
+  "waitingMembers": "Waiting for all {count} members to submit their petitions.",
+  "@waitingMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checking": "Checking…",
+  "checkStatus": "Check Submission Status",
+  "checkHelp": "Check the latest submission count. Once everyone has submitted, the king can deliver a verdict.",
+  "verdict": "Royal Verdict",
+  "verdictUnavailable": "The verdict is pending. Go back to check the submission status.",
+  "verdictReasons": "Reasons for the verdict",
+  "fitScore": "Fit score {score}%",
+  "@fitScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "newDecision": "Start Another Decision",
+  "viewRecord": "View Final Record",
+  "finalizing": "Confirming…",
+  "finalize": "Confirm Decision",
+  "waitingHost": "Waiting for the host to confirm the decision.",
+  "checkFinalization": "Check Confirmation",
+  "reviewVerdict": "The verdict is an AI recommendation based on the group’s petitions. Review important decisions together.",
+  "decree": "Royal Decree",
+  "recorded": "Decision recorded",
+  "confirmedDecision": "This decision is final.",
+  "finalizedAt": "Confirmed: {date}",
+  "@finalizedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "createdAt": "Created: {date}",
+  "@createdAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "myCourts": "My Courts",
+  "refreshCourts": "Refresh court records",
+  "reopenCourts": "Reopen courts you have joined without an invitation code.",
+  "noCourts": "You have not joined a court yet. Convene one or join by invitation.",
+  "reloadCourts": "Reload Records",
+  "loading": "Loading…",
+  "moreCourts": "Show Older Courts",
+  "historyPrivacy": "These records belong to your current guest session.",
+  "archivedStatus": "Closed · View record",
+  "activeStatus": "In progress · Reenter",
+  "host": "Host",
+  "sessionExpired": "Your guest session has expired. Enter the court again.",
+  "historyError": "Could not load court records. Please try again.",
+  "historyNetwork": "Could not connect to court records. Check your connection.",
+  "serverError": "The request failed. Please try again.",
+  "invalidResponse": "Could not read the server response.",
+  "verdictMissing": "Could not find the saved verdict.",
+  "verdictWait": "Wait until every court member has submitted a petition.",
+  "verdictPending": "The verdict is still pending. Please check again.",
+  "verdictError": "Could not obtain a verdict. Please try again shortly.",
+  "finalizeUnconfirmed": "Could not verify the decision was confirmed. Please try again.",
+  "finalizeError": "Could not confirm the decision. Check your connection and try again.",
+  "networkError": "Could not reach the server. Check your connection.",
+  "openRoomError": "Could not open the court.",
+  "notMember": "Only members of this court can enter.",
+  "invalidKing": "Choose a king again.",
+  "invalidRoom": "Check the court name, agenda, and number of members.",
+  "invalidCode": "Enter an invitation code.",
+  "roomNotFound": "The court could not be found.",
+  "roomClosed": "This court is already closed.",
+  "roomFull": "This court has reached its member limit.",
+  "verdictExists": "The king has already delivered a verdict for this court.",
+  "invalidOpinion": "Enter at least 10 characters in your petition.",
+  "alreadySubmitted": "You already submitted a petition to this court.",
+  "ownerRequired": "Only the host can confirm the final record.",
+  "noVerdict": "Wait for the verdict before confirming the record.",
+  "wiseName": "The Wise King",
+  "wiseCharacter": "Calm and impartial",
+  "wisePriorities": "Balances feelings, practical needs, and efficiency while considering minority concerns.",
+  "wiseExample": "Having heard the court, I find this the soundest course.",
+  "wiseSituations": "Any agenda",
+  "ironName": "The Iron King",
+  "ironCharacter": "Decisive and efficient",
+  "ironPriorities": "Prioritizes what is feasible, saves time and money, and gets the work done.",
+  "ironExample": "The way forward is clear. Let us proceed.",
+  "ironSituations": "Dividing tasks or scheduling",
+  "festiveName": "The Festive King",
+  "festiveCharacter": "Playful and lively",
+  "festivePriorities": "Makes room for novelty and shared fun while respecting essential constraints.",
+  "festiveExample": "This is the choice for today!",
+  "festiveSituations": "Retreats, menus, or games",
+  "sentimentalName": "The Sentimental King",
+  "sentimentalCharacter": "Warm and reflective",
+  "sentimentalPriorities": "Values comfort, atmosphere, and shared memories ahead of efficiency.",
+  "sentimentalExample": "Let us take the path that puts our hearts at ease.",
+  "sentimentalSituations": "Atmosphere, romance, or experiences",
+  "tyrantName": "The Tyrant King",
+  "tyrantCharacter": "Grumbles, then decides quickly",
+  "tyrantPriorities": "Looks for the simplest option the court can act on quickly.",
+  "tyrantExample": "Enough fretting. This is what we shall do.",
+  "tyrantSituations": "Low-stakes or playful decisions"
+}

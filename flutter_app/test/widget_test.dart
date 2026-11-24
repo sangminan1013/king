@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:king/l10n/generated/king_localizations.dart";
 import "package:king/src/screens/auth_screen.dart";
 import "package:king/src/theme/king_theme.dart";
 
@@ -7,12 +8,15 @@ void main() {
   testWidgets("shows the guest-only King entry screen", (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: KingLocalizations.localizationsDelegates,
+        supportedLocales: KingLocalizations.supportedLocales,
+        locale: const Locale('ko'),
         theme: KingTheme.light,
         home: AuthScreen(onGuest: () async => null),
       ),
     );
 
-    expect(find.text("King"), findsOneWidget);
+    expect(find.text("KING"), findsOneWidget);
     expect(find.text("게스트로 입장하기"), findsOneWidget);
     expect(find.text("로그인"), findsNothing);
     expect(find.text("회원가입"), findsNothing);
@@ -22,6 +26,9 @@ void main() {
     var entered = false;
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: KingLocalizations.localizationsDelegates,
+        supportedLocales: KingLocalizations.supportedLocales,
+        locale: const Locale('ko'),
         theme: KingTheme.light,
         home: AuthScreen(
           onGuest: () async {

@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
@@ -30,16 +32,16 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     final controller = widget.controller;
     final verdict = controller.verdict!;
     return RoyalScaffold(
-      title: "최종 기록",
-      kicker: "${controller.kingPersonality.label} · 최종 기록",
+      title: l.decree,
+      kicker: "${l.profile(controller.kingPersonality).name} · ${l.recorded}",
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 45, 24, 40),
         children: [
-          const RoyalCrest(),
-          const Kicker("DECISION RECORDED"),
+          Kicker(l.recorded),
           const SizedBox(height: 9),
           Text(
             controller.groupName,
@@ -48,28 +50,26 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
           const SizedBox(height: 5),
           Text(
-            "참여자 ${controller.memberCount}명",
+            l.memberCount(controller.memberCount),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 27),
-          Container(
+          RoyalPanel(
+            style: RoyalPanelStyle.decree,
             padding: const EdgeInsets.all(21),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.28),
-              border: Border.all(color: const Color(0xFFB7A280)),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Kicker("결정 안건"),
+                Kicker(l.topic),
                 const SizedBox(height: 8),
-                Text(controller.topic, style: Theme.of(context).textTheme.bodyMedium),
+                Text(controller.topic,
+                    style: Theme.of(context).textTheme.bodyMedium),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 17),
-                  child: Divider(color: Color(0x337B6248), height: 1),
+                  child: Divider(color: KingColors.subtleBorder, height: 1),
                 ),
-                const Kicker("최종 평결"),
+                Kicker(l.verdict),
                 const SizedBox(height: 8),
                 Text(
                   verdict.title,
@@ -81,26 +81,33 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 Container(
                   padding: const EdgeInsets.only(left: 10),
                   decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: KingColors.gold, width: 2)),
+                    border: Border(
+                        left: BorderSide(color: KingColors.gold, width: 2)),
                   ),
                   child: Text(
-                    "“${verdict.summary}”",
+                    verdict.summary,
                     style: KingTheme.decisionSummary,
                   ),
                 ),
+                const SizedBox(height: 20),
+                const Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: SizedBox(width: 40, child: RoyalCrest(small: true))),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          const Text("확정된 결정입니다.", textAlign: TextAlign.center),
+          Text(l.confirmedDecision, textAlign: TextAlign.center),
           if (controller.finalizedAt != null)
-            Text("확정 시각: ${controller.finalizedAt!.toLocal().toString().split('.').first}",
+            Text(
+                l.finalizedAt(formatCourtDate(context, controller.finalizedAt!,
+                    showTime: true)),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           RoyalButton(
-            label: "처음으로 돌아가기",
-            icon: Icons.logout,
+            label: l.home,
+            icon: Icons.home_outlined,
             style: RoyalButtonStyle.ghost,
             onPressed: () {
               controller.reset();

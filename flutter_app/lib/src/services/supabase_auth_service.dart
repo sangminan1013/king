@@ -13,9 +13,15 @@ class SupabaseAuthService {
       await _client.auth.signInAnonymously();
       return null;
     } on AuthException catch (error) {
-      return error.message;
+      return switch (error.code) {
+        "anonymous_provider_disabled" => "ui:guestDisabled",
+        "over_request_rate_limit" ||
+        "over_email_send_rate_limit" =>
+          "ui:guestRateLimited",
+        _ => "ui:guestError",
+      };
     } catch (_) {
-      return "게스트 세션을 만들지 못했습니다. 네트워크 연결을 확인해 주세요.";
+      return "ui:guestError";
     }
   }
 

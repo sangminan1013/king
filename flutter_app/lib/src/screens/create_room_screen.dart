@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
-import "../models/king_personality.dart";
+import "../data/demo_data.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 import "room_screen.dart";
@@ -27,6 +29,23 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     widget.controller.addListener(refresh);
   }
 
+  bool initializedFields = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (initializedFields) return;
+    initializedFields = true;
+    if (widget.controller.roomId == null &&
+        groupController.text == DemoData.groupName) {
+      groupController.text = context.strings.demoGroup;
+    }
+    if (widget.controller.roomId == null &&
+        topicController.text == DemoData.topic) {
+      topicController.text = context.strings.demoTopic;
+    }
+  }
+
   void refresh() => setState(() {});
 
   @override
@@ -39,22 +58,19 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     final canCreate = groupController.text.trim().isNotEmpty &&
         topicController.text.trim().isNotEmpty;
 
     return RoyalScaffold(
-      title: "새 회의 열기",
-      kicker: "CONVENE A COUNCIL",
+      title: l.convene,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
         children: [
-          const ChapterTitle(
-            number: "I",
-            chapter: "첫 번째 장",
-            title: "회의의 이름을 정하세요",
-          ),
+          Text(l.createHeading,
+              style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 28),
-          Text("그룹명", style: Theme.of(context).textTheme.labelLarge),
+          Text(l.groupName, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           TextField(
             controller: groupController,
@@ -65,7 +81,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             },
           ),
           const SizedBox(height: 6),
-          Text("결정할 안건", style: Theme.of(context).textTheme.labelLarge),
+          Text(l.topic, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           TextField(
             controller: topicController,
@@ -82,37 +98,44 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             padding: const EdgeInsets.symmetric(vertical: 17),
             decoration: const BoxDecoration(
               border: Border.symmetric(
-                horizontal: BorderSide(color: Color(0x337B6248)),
+                horizontal: BorderSide(color: KingColors.subtleBorder),
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("참여 인원", style: Theme.of(context).textTheme.labelLarge),
-                      Text("설정한 인원 모두 제출하면 평결이 시작됩니다", style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-                Container(
+                Text(l.members, style: Theme.of(context).textTheme.labelLarge),
+                Text(l.membersDescription,
+                    style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 10),
+                DecoratedBox(
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFB8A585)),
+                    border: Border.all(color: KingColors.border),
+                    borderRadius: BorderRadius.circular(4),
+                    color: KingColors.paperLight,
                   ),
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () => widget.controller.changeMemberLimit(-1),
+                        tooltip: l.fewerMembers,
+                        onPressed: widget.controller.memberLimit <= 2
+                            ? null
+                            : () => widget.controller.changeMemberLimit(-1),
                         icon: const Icon(Icons.remove),
                         color: KingColors.burgundy,
                       ),
-                      Text(
-                        "${widget.controller.memberLimit}명",
-                        style: Theme.of(context).textTheme.titleMedium,
+                      Expanded(
+                        child: Text(
+                          l.memberCount(widget.controller.memberLimit),
+                          style: Theme.of(context).textTheme.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       IconButton(
-                        onPressed: () => widget.controller.changeMemberLimit(1),
+                        tooltip: l.moreMembers,
+                        onPressed: widget.controller.memberLimit >= 12
+                            ? null
+                            : () => widget.controller.changeMemberLimit(1),
                         icon: const Icon(Icons.add),
                         color: KingColors.burgundy,
                       ),
@@ -123,55 +146,34 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Text("판결을 내릴 왕", style: Theme.of(context).textTheme.titleMedium),
+          Text(l.chooseKing, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text("왕마다 먼저 살피는 기준과 판결의 말투가 다릅니다.",
+          Text(l.chooseKingDescription,
               style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 12),
-          DropdownButtonFormField<KingPersonality>(
-            key: ValueKey(widget.controller.kingPersonality),
-            initialValue: widget.controller.kingPersonality,
-            isExpanded: true,
-            decoration: const InputDecoration(labelText: "왕의 성격"),
-            items: KingPersonality.values.map((king) => DropdownMenuItem(
-                value: king, child: Text(king.label))).toList(),
-            onChanged: widget.controller.isRoomBusy ? null : (king) {
-              if (king != null) widget.controller.selectKing(king);
-            },
+          KingPicker(
+            selected: widget.controller.kingPersonality,
+            onSelected: widget.controller.isRoomBusy
+                ? null
+                : widget.controller.selectKing,
           ),
-          const SizedBox(height: 12),
-          Text(widget.controller.kingPersonality.character,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 6),
-          Text(widget.controller.kingPersonality.priorities,
-              style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 6),
-          Text("어울리는 상황: ${widget.controller.kingPersonality.situations}",
-              style: Theme.of(context).textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          Text("“${widget.controller.kingPersonality.example}”",
-              style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: const BoxDecoration(
-              color: Color(0x14B98F42),
-              border: Border(left: BorderSide(color: KingColors.gold, width: 2)),
+              color: KingColors.wash,
+              border:
+                  Border(left: BorderSide(color: KingColors.gold, width: 2)),
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.edit_note, color: KingColors.burgundy),
-                SizedBox(width: 10),
+                const Icon(Icons.edit_note, color: KingColors.burgundy),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "각 참여자의 의견은 서로에게 공개되지 않습니다. 모두 제출하면 AI 평결이 시작됩니다.",
-                    style: TextStyle(
-                      fontFamily: "sans-serif",
-                      color: KingColors.muted,
-                      fontSize: 10,
-                      height: 1.6,
-                    ),
+                    l.petitionPrivacy,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
               ],
@@ -179,15 +181,18 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           ),
           const SizedBox(height: 23),
           RoyalButton(
-            label: widget.controller.isRoomBusy ? "회의를 여는 중..." : "회의 개설하기",
+            label: widget.controller.isRoomBusy ? l.creating : l.convene,
             icon: Icons.workspace_premium_outlined,
             onPressed: canCreate && !widget.controller.isRoomBusy
                 ? () async {
+                    widget.controller.updateGroupName(groupController.text);
+                    widget.controller.updateTopic(topicController.text);
                     final created = await widget.controller.createRoom();
                     if (!context.mounted || !created) return;
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => RoomScreen(controller: widget.controller),
+                        builder: (_) =>
+                            RoomScreen(controller: widget.controller),
                       ),
                     );
                   }
@@ -196,7 +201,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           if (widget.controller.roomError != null) ...[
             const SizedBox(height: 12),
             Text(
-              widget.controller.roomError!,
+              l.errorMessage(widget.controller.roomError!),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: KingColors.burgundy,

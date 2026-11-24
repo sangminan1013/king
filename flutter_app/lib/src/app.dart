@@ -1,13 +1,17 @@
 import "package:flutter/material.dart";
 
+import "../l10n/generated/king_localizations.dart";
 import "controller/king_controller.dart";
+import "language_preferences.dart";
 import "screens/auth_screen.dart";
 import "screens/home_screen.dart";
 import "services/supabase_auth_service.dart";
 import "theme/king_theme.dart";
 
 class KingApp extends StatefulWidget {
-  const KingApp({super.key});
+  const KingApp({required this.languages, super.key});
+
+  final LanguagePreferences languages;
 
   @override
   State<KingApp> createState() => _KingAppState();
@@ -49,18 +53,24 @@ class _KingAppState extends State<KingApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "King",
-      debugShowCheckedModeBanner: false,
-      theme: KingTheme.light,
-      home: isCheckingSession
-          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-          : isAuthenticated
-              ? HomeScreen(
-                  controller: controller,
-                  onSignOut: signOut,
-                )
-              : AuthScreen(onGuest: enterAsGuest),
+    return LanguageScope(
+      preferences: widget.languages,
+      child: ListenableBuilder(
+        listenable: widget.languages,
+        builder: (context, child) => MaterialApp(
+          onGenerateTitle: (context) => KingLocalizations.of(context).brand,
+          locale: widget.languages.locale,
+          supportedLocales: KingLocalizations.supportedLocales,
+          localizationsDelegates: KingLocalizations.localizationsDelegates,
+          debugShowCheckedModeBanner: false,
+          theme: KingTheme.light,
+          home: isCheckingSession
+              ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+              : isAuthenticated
+                  ? HomeScreen(controller: controller, onSignOut: signOut)
+                  : AuthScreen(onGuest: enterAsGuest),
+        ),
+      ),
     );
   }
 }

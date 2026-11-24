@@ -85,7 +85,7 @@ class KingApiService {
   Future<List<RoomListEntry>> listMyRooms({int offset = 0}) async {
     final user = _supabase.auth.currentUser;
     if (user == null || _supabase.auth.currentSession == null) {
-      throw const KingApiException("게스트 세션이 만료되었습니다. 다시 입장해 주세요.");
+      throw const KingApiException("ui:sessionExpired");
     }
     try {
       // Use the guest JWT, never a service-role key. The existing
@@ -100,11 +100,11 @@ class KingApiService {
           .range(offset, offset + roomPageSize - 1);
       return rows.map((row) => RoomListEntry.fromJson(row, user.id)).toList();
     } on AuthException {
-      throw const KingApiException("게스트 세션이 만료되었습니다. 다시 입장해 주세요.");
+      throw const KingApiException("ui:sessionExpired");
     } on PostgrestException {
-      throw const KingApiException("회의 목록을 불러오지 못했습니다. 다시 시도해 주세요.");
+      throw const KingApiException("ui:historyError");
     } catch (_) {
-      throw const KingApiException("회의 목록에 연결하지 못했습니다. 네트워크 상태를 확인해 주세요.");
+      throw const KingApiException("ui:historyNetwork");
     }
   }
 
@@ -167,7 +167,7 @@ class KingApiService {
   }) async {
     final session = _supabase.auth.currentSession;
     if (session == null) {
-      throw const KingApiException("게스트 세션이 만료되었습니다. 다시 입장해 주세요.");
+      throw const KingApiException("ui:sessionExpired");
     }
 
     final request = http.Request(
@@ -190,12 +190,16 @@ class KingApiService {
       final error = decoded["error"];
       final message =
           error is Map<String, dynamic> ? error["message"]?.toString() : null;
-      throw KingApiException(message ?? "서버 요청에 실패했습니다.");
+      final code = error is Map<String, dynamic> ? error["code"] : null;
+      throw KingApiException(
+        message ?? "ui:serverError",
+        displayKey: code is String ? "server:$code" : "ui:serverError",
+      );
     }
 
     final room = decoded["room"];
     if (room is! Map<String, dynamic>) {
-      throw const KingApiException("서버 응답을 읽지 못했습니다.");
+      throw const KingApiException("ui:invalidResponse");
     }
     final snapshot = RoomSnapshot.fromJson(room);
     final ownerToken = decoded["ownerToken"];
@@ -210,7 +214,9 @@ class KingApiService {
 }
 
 class KingApiException implements Exception {
-  const KingApiException(this.message);
+  const KingApiException(this.message, {this.displayKey});
+
+  final String? displayKey;
 
   final String message;
 

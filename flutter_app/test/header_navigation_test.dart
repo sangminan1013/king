@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:king/l10n/generated/king_localizations.dart';
 import 'package:king/src/widgets/royal_widgets.dart';
 import 'package:king/src/theme/king_theme.dart';
 
@@ -19,15 +20,20 @@ Widget page(String name, String? next) => Builder(
 
 Future<void> openDetail(WidgetTester tester) async {
   await tester.pumpWidget(MaterialApp(
+    localizationsDelegates: KingLocalizations.localizationsDelegates,
+    supportedLocales: KingLocalizations.supportedLocales,
+    locale: const Locale('ko'),
     theme: KingTheme.light,
-    home: Builder(builder: (context) => Scaffold(
-      body: TextButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => page('회의 기록', '회의 상세')),
-        ),
-        child: const Text('홈에서 기록 열기'),
-      ),
-    )),
+    home: Builder(
+        builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                      builder: (_) => page('회의 기록', '회의 상세')),
+                ),
+                child: const Text('홈에서 기록 열기'),
+              ),
+            )),
   ));
   await tester.tap(find.text('홈에서 기록 열기'));
   await tester.pumpAndSettle();
@@ -36,7 +42,8 @@ Future<void> openDetail(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('back returns one screen while home remains available', (tester) async {
+  testWidgets('back returns one screen while home remains available',
+      (tester) async {
     await openDetail(tester);
     expect(find.byTooltip('홈으로'), findsOneWidget);
     await tester.tap(find.byTooltip('뒤로 가기'));
@@ -46,7 +53,8 @@ void main() {
     expect(find.text('홈에서 기록 열기'), findsNothing);
   });
 
-  testWidgets('home returns directly to root and removes intermediate routes', (tester) async {
+  testWidgets('home returns directly to root and removes intermediate routes',
+      (tester) async {
     await openDetail(tester);
     await tester.tap(find.byTooltip('홈으로'));
     await tester.pumpAndSettle();

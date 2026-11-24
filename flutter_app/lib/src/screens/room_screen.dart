@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
@@ -62,12 +64,13 @@ class _RoomScreenState extends State<RoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     final controller = widget.controller;
     final progress = controller.submittedCount / controller.memberLimit;
 
     return RoyalScaffold(
       title: controller.groupName,
-      kicker: "${controller.kingPersonality.label} · ${controller.roomCode}",
+      kicker: l.royalCourt,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 40),
         children: [
@@ -82,8 +85,9 @@ class _RoomScreenState extends State<RoomScreen> {
                 ),
               ),
               const SizedBox(width: 7),
-              Text("의견 수집 중", style: Theme.of(context).textTheme.bodySmall),
-              const Spacer(),
+              Expanded(
+                  child: Text(l.receiving,
+                      style: Theme.of(context).textTheme.bodySmall)),
               const Icon(Icons.people_outline,
                   size: 17, color: KingColors.muted),
               const SizedBox(width: 5),
@@ -103,12 +107,12 @@ class _RoomScreenState extends State<RoomScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Kicker("TODAY'S DECISION", light: true),
+                Kicker(l.todayTopic, light: true),
                 const SizedBox(height: 12),
                 Text(
                   controller.topic,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: const Color(0xFFFFF5DF),
+                        color: KingColors.paperLight,
                         fontSize: 18,
                       ),
                 ),
@@ -116,16 +120,16 @@ class _RoomScreenState extends State<RoomScreen> {
                 LinearProgressIndicator(
                   value: progress,
                   minHeight: 4,
-                  backgroundColor: Colors.white.withOpacity(.15),
+                  backgroundColor: KingColors.paper.withValues(alpha: .19),
                   color: KingColors.goldLight,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "${controller.submittedCount}명이 의견을 제출했습니다",
+                  l.submittedCount(controller.submittedCount),
                   style: const TextStyle(
-                    color: Color(0xFFD4C2A1),
-                    fontFamily: "sans-serif",
-                    fontSize: 9,
+                    color: KingColors.paperDeep,
+                    fontFamily: KingTheme.sans,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -134,24 +138,16 @@ class _RoomScreenState extends State<RoomScreen> {
           const SizedBox(height: 13),
           InviteCodeTile(code: controller.roomCode),
           const SizedBox(height: 26),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.22),
-              border: Border.all(color: const Color(0x337B6248)),
-            ),
+          RoyalPanel(
             child: Column(
               children: [
-                const ChapterTitle(
-                  number: "II",
-                  chapter: "두 번째 장",
-                  title: "당신의 조건을 들려주세요",
-                ),
+                Text(l.petitionHeading,
+                    style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 24),
                 if (controller.hasSubmitted)
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text("대기 화면으로 이동합니다..."),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(l.movingToWaiting),
                   )
                 else ...[
                   TextField(
@@ -160,15 +156,15 @@ class _RoomScreenState extends State<RoomScreen> {
                     maxLines: 7,
                     maxLength: 300,
                     onChanged: controller.updateOpinion,
-                    decoration: const InputDecoration(
-                      hintText: "중요하게 생각하는 조건, 피하고 싶은 선택,\n원하는 결과를 자유롭게 적어주세요.",
+                    decoration: InputDecoration(
+                      hintText: l.petitionHint,
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const PrivacyNote("제출 후에는 수정할 수 없으며 익명으로 처리됩니다."),
+                  PrivacyNote(l.petitionLocked),
                   const SizedBox(height: 18),
                   RoyalButton(
-                    label: controller.isRoomBusy ? "의견을 봉인하는 중..." : "의견 봉인하기",
+                    label: controller.isRoomBusy ? l.sealing : l.submitPetition,
                     icon: Icons.edit_note,
                     onPressed: controller.opinion.trim().length >= 10 &&
                             !controller.isRoomBusy
@@ -178,7 +174,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   if (controller.roomError != null) ...[
                     const SizedBox(height: 12),
                     Text(
-                      controller.roomError!,
+                      l.errorMessage(controller.roomError!),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: KingColors.burgundy,
