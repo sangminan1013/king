@@ -1,7 +1,7 @@
 import { parsePreprocessing } from './preprocessing.ts'
 
-const valid = () => ({ topic: '점심', opinions: [
-  { participant: 1, text: '채식 선호', injectionDetected: false },
+const valid = () => ({ topic: 'Lunch', opinions: [
+  { participant: 1, text: 'Vegetarian food preferred', injectionDetected: false },
   { participant: 2, text: '', injectionDetected: true },
 ] })
 Deno.test('normalization preserves participants including injection-only empty opinion', () => {
@@ -24,3 +24,10 @@ for (const [name, mutate] of [
     if (!rejected) throw new Error('Invalid output accepted')
   })
 }
+
+Deno.test('preprocessing rejects untranslated Korean output', () => {
+  const value = valid(); value.opinions[0].text = '채식 선호'
+  let rejected = false
+  try { parsePreprocessing(JSON.stringify(value), 2) } catch { rejected = true }
+  if (!rejected) throw new Error('Untranslated normalization accepted')
+})

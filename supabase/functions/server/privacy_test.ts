@@ -13,3 +13,13 @@ Deno.test('narration input removes identifying references while preserving condi
   assertPrivateReasons([{ title: '조건', detail: safe }])
   if (!safe.includes('비용 제약') || !safe.includes('국밥') || !safe.includes('야경')) throw new Error('Preference lost')
 })
+
+Deno.test('English attribution is anonymized and identifying English reasons are rejected', () => {
+  for (const detail of ["Participant 1 prefers this", "the manager's budget", "The chairman requested it", "The second participant agrees"]) {
+    let rejected = false
+    try { assertPrivateReasons([{ title: 'Evidence', detail }]) } catch { rejected = true }
+    if (!rejected) throw new Error('English identity reference passed')
+    assertPrivateReasons([{ title: 'Evidence', detail: anonymizeReferences(detail) }])
+  }
+  assertPrivateReasons([{ title: 'Cost', detail: 'Some participants expressed concerns about cost.' }])
+})

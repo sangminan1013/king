@@ -3,8 +3,9 @@
 export function assertPrivateReasons(reasons: Array<{ title: string; detail: string }>) {
   const numbered = /(?:참여자|참가자|익명|의견)\s*(?:제\s*)?#?\s*\d|\d+\s*번\s*(?:참여자|참가자|의견)|(?:첫|두|세|네|다섯|여섯)\s*번째\s*(?:참여자|참가자|의견)/u
   const role = /(?:^|[^가-힣])(?:부장|회장|팀장|과장|사장|대표|실장|대리|주임|이사|교수|선생)(?:님)?(?=$|[^가-힣]|은|는|이|가|의|께|을|를|도|와|과)/u
+  const englishIdentity = /\b(?:(?:participant|attendee|member|speaker|anonymous|opinion)\s*#?\s*\d+|\d+(?:st|nd|rd|th)?\s*(?:participant|attendee|member|opinion)|(?:first|second|third|fourth|fifth)\s+(?:participant|attendee|opinion)|manager|chairperson|chairman|chairwoman|president|boss|CEO|director|supervisor|department head|team lead)\b/iu
   for (const reason of reasons) {
-    if ([reason.title, reason.detail].some((text) => numbered.test(text) || role.test(text))) {
+    if ([reason.title, reason.detail].some((text) => numbered.test(text) || role.test(text) || englishIdentity.test(text))) {
       throw new Error('Identifying participant reference in verdict reasons')
     }
   }
@@ -19,4 +20,6 @@ export function anonymizeReferences(text: string): string {
     return '일부 참가자' + (particle ? mapped[particle] ?? particle : '')
   }
   return text.replace(reference, replace).replace(role, (_match, prefix: string, particle?: string) => prefix + replace('', particle))
+    .replace(/\b(?:(?:participant|attendee|member|speaker|anonymous|opinion)\s*#?\s*\d+|(?:first|second|third|fourth|fifth)\s+(?:participant|attendee|opinion)|(?:the\s+)?(?:manager|chairperson|chairman|chairwoman|president|boss|CEO|director|supervisor|department head|team lead))(?:['’]s)?\b/giu,
+      (match) => /['’]s$/u.test(match) ? "some participants'" : 'some participants')
 }

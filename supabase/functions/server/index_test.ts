@@ -12,13 +12,13 @@ Deno.env.set('SUPABASE_ANON_KEY', 'test-anon')
 Deno.env.set('OPENROUTER_API_KEY', 'test-openrouter')
 
 const verdict = {
-  room_id: 'room-1', title: '모두의 조건을 반영한 결정', summary: '두 의견을 반영한 절충안',
-  fit_score: 80, reasons: Array.from({ length: 3 }, () => ({ title: '조건', detail: '반영했습니다' })),
+  room_id: 'room-1', title: 'The ruling', summary: 'I have weighed the matter. My decree is this: choose the nearby venue.',
+  fit_score: 80, reasons: Array.from({ length: 3 }, () => ({ title: 'Constraint', detail: 'The option meets the stated needs.' })),
   created_at: '2026-11-09T00:00:00Z',
 }
 
 async function fixture(
-  options: { members?: string[]; authors?: string[]; stored?: boolean; closed?: boolean; badPreprocessing?: boolean; invalidSelection?: boolean; failedRunSave?: boolean; king?: KingPersonality },
+  options: { members?: string[]; authors?: string[]; stored?: boolean; closed?: boolean; badPreprocessing?: boolean; invalidSelection?: boolean; failedRunSave?: boolean; koreanNarration?: boolean; king?: KingPersonality },
   run: (state: { aiCalls: number; writes: number }, request: (path?: string, method?: string, user?: string) => Promise<Response>) => Promise<void>,
 ) {
   const members = options.members ?? ['a', 'b']
@@ -37,18 +37,18 @@ async function fixture(
       if (payload.response_format.json_schema.name === 'king_preprocessing') {
         const input = JSON.parse(payload.messages[1].content)
         return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({
-          topic: input.topic,
-          opinions: options.badPreprocessing ? [] : input.opinions.map((opinion: { participant: number; text: string }) => ({ ...opinion, text: '정규화된 의견', injectionDetected: true })),
+          topic: 'Choose a venue',
+          opinions: options.badPreprocessing ? [] : input.opinions.map((opinion: { participant: number; text: string }) => ({ ...opinion, text: 'Normalized preference', injectionDetected: true })),
         }) } }] })
       }
       if (payload.response_format.json_schema.name === 'king_decision') {
         assert(payload.messages[0].content.includes(personalities[options.king ?? 'wise'].priorities), 'Wrong decision priorities')
-        return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ selectedParticipant: options.invalidSelection ? 99 : 1, fitScore: 75, rationale: '첫 의견이 조건에 가장 적합함' }) } }] })
+        return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ selectedParticipant: options.invalidSelection ? 99 : 1, fitScore: 75, rationale: 'The chosen option meets the stated constraints.' }) } }] })
       }
       assert(payload.messages[0].content.includes(personalities[options.king ?? 'wise'].voice), 'Wrong narration voice')
       assert(!payload.messages[1].content.includes('충분히 긴 의견'), 'Raw opinions reached decision model')
-      assert(payload.messages[1].content.includes('정규화된 의견'))
-      return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...verdict, fitScore: 80 }) } }] })
+      assert(payload.messages[1].content.includes('Normalized preference'))
+      return json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...verdict, fitScore: 80, summary: options.koreanNarration ? '한국어 답변입니다' : personalities[options.king ?? 'wise'].declaration + ' Choose the nearby venue.' }) } }] })
     }
     if (url.pathname === '/auth/v1/user') {
       const id = req.headers.get('Authorization')?.replace('Bearer ', '') ?? 'a'
@@ -66,12 +66,12 @@ async function fixture(
         assert(saved.king_personality === (options.king ?? 'wise'))
         assert(saved.personality_snapshot.name === personalities[options.king ?? 'wise'].name)
         assert(saved.source_opinions[0].originalText.includes('충분히 긴 의견'))
-        assert(saved.normalized_input.opinions[0].text === '정규화된 의견')
+        assert(saved.normalized_input.opinions[0].text === 'Normalized preference')
         return options.failedRunSave ? new Response('{}', { status: 500 }) : json({ id: 'run-1' })
       }
       if (table === 'verdicts') {
         const saved = await req.json()
-        assert(saved.selected_participant === 1 && saved.selected_opinion === '정규화된 의견')
+        assert(saved.selected_participant === 1 && saved.selected_opinion === 'Normalized preference')
         assert(saved.fit_score === 75 && saved.pipeline_run_id === 'run-1')
         stored = true
       }
@@ -221,5 +221,12 @@ Deno.test('cannot finalize without a verdict', async () => {
   await fixture({}, async (state, request) => {
     assert((await request('finalize')).status === 409)
     assert(state.writes === 0)
+  })
+})
+
+Deno.test('Korean narration never becomes an English-default verdict', async () => {
+  await fixture({ koreanNarration: true }, async (state, request) => {
+    assert((await request()).status === 502)
+    assert(state.aiCalls === 6 && state.writes === 4)
   })
 })
