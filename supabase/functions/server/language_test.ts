@@ -1,4 +1,4 @@
-import { assertEnglishText, boundedSentence } from './language.ts'
+import { assertEnglishText, boundedSentence, assertDecisiveRuling } from './language.ts'
 import { personalities, narrationPersonalityPrompt, decisionPersonalityPrompt } from './personalities.ts'
 Deno.test('English guard accepts amounts and romanized names, rejects Hangul leakage', () => {
   assertEnglishText('Choose bibimbap in Seoul for KRW 10,000, not USD 10,000.')
@@ -25,4 +25,11 @@ Deno.test('long English explanations end at a complete sentence', () => {
   let rejected = false
   try { boundedSentence('word '.repeat(100), 100) } catch { rejected = true }
   if (!rejected) throw new Error('Incomplete long sentence accepted')
+})
+
+Deno.test('rulings do not repeat a participant first-person preference', () => {
+  assertDecisiveRuling('I decree: choose the riverside restaurant. Some participants prefer its atmosphere.')
+  let rejected = false
+  try { assertDecisiveRuling('I decree: I prefer the riverside restaurant.') } catch { rejected = true }
+  if (!rejected) throw new Error('Preference passed as a decree')
 })

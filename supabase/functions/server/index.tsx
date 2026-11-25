@@ -1,4 +1,4 @@
-import { assertEnglishText, boundedSentence } from './language.ts'
+import { assertEnglishText, boundedSentence, assertDecisiveRuling } from './language.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2.49.8'
 import { Hono } from 'npm:hono'
 import { cors } from 'npm:hono/cors'
@@ -369,6 +369,7 @@ Respond only with the specified JSON schema.
       throw new Error('Invalid or incomplete narration response')
     }
     const rendered = parseVerdict(rawContent)
+    assertDecisiveRuling(rendered.summary)
     const declaration = personalities[kingPersonality].declaration
     if (!rendered.summary.startsWith(declaration) || rendered.summary.length <= declaration.length) {
       throw new Error('Narration must include the royal declaration and a complete ruling')

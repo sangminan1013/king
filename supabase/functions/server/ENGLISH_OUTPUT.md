@@ -31,4 +31,4 @@ Default models are unchanged: gpt-4o-mini preprocessing, gpt-4.1-mini decision, 
 
 Run `deno task test` here. Tests cover untranslated model output rejection, English/Korean privacy checks, persona instructions, retries, authentication, readiness, and finalization.
 
-Deployment: King-Demo server v17, JWT verification retained. 36 mocked Deno tests pass. English explanations are kept within the existing database limits at complete sentence boundaries; incomplete overlong rulings fail validation rather than being saved as fragments.
+Deployment: King-Demo server v18, JWT verification retained. 37 mocked Deno tests pass. English explanations are kept within the existing database limits at complete sentence boundaries; incomplete overlong rulings fail validation rather than being saved as fragments.

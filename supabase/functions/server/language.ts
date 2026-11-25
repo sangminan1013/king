@@ -15,3 +15,9 @@ export function boundedSentence(value: unknown, maxLength: number): string {
   if (end === undefined || end >= maxLength) throw new Error('English explanation exceeds the sentence limit')
   return text.slice(0, end + 1)
 }
+
+export function assertDecisiveRuling(summary: string) {
+  if (/\b(?:I|we)\s+(?:prefer|suggest|recommend|would like)\b/iu.test(summary)) {
+    throw new Error('Narration must state a ruling, not the author preference')
+  }
+}
