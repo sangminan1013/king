@@ -155,3 +155,20 @@ npx --yes deno task test
 
 Existing verdicts created before this fix are not deleted or regenerated.
 Use a new room when validating that every opinion was included.
+
+## Short invitation codes
+
+New rooms use four lowercase letters and digits, such as `ab7x`, with no
+`KING-` prefix. Uppercase input for these four-character codes is accepted and
+normalized to lowercase. The join screen explains this in Korean and English.
+Ambiguous characters (`0`, `1`, lowercase `l`/`o`) are excluded from generation.
+Existing `KING-ABC` codes keep their case-insensitive behavior; previous mixed-
+case six-character codes keep exact-case lookup and recovery keys. Existing
+rooms and invitation codes are not rewritten.
+
+Deployment order: distribute the updated Flutter client (which accepts all
+formats), apply `20261127000000_short_case_sensitive_invite_codes.sql`, then
+deploy the `server` Edge Function including `invite_codes.ts`. The migration
+supports lowercase four-character codes alongside previous formats. Older clients reject four-
+character codes as too short. GitHub updates alone do not apply the migration
+or deploy the function. The public DB has not been modified.

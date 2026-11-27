@@ -1,3 +1,4 @@
+import "../models/invite_code.dart";
 import "package:flutter/foundation.dart";
 
 import "../data/demo_data.dart";
@@ -86,7 +87,7 @@ class KingController extends ChangeNotifier {
 
   Future<bool> joinRoom(String code) async {
     return _runRoomAction(() async {
-      _apply(await _api.joinRoom(code.trim().toUpperCase()));
+      _apply(await _api.joinRoom(normalizeInviteCode(code)));
     });
   }
 

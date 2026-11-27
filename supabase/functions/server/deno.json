@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
-    "lib": ["deno.window", "dom", "dom.iterable"],
+    "lib": [
+      "deno.window",
+      "dom",
+      "dom.iterable"
+    ],
     "strict": true
   },
   "nodeModulesDir": "none",
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-env --allow-net index_test.ts preprocessing_test.ts selection_test.ts privacy_test.ts"
+    "test": "deno test --allow-env --allow-net index_test.ts preprocessing_test.ts selection_test.ts privacy_test.ts invite_codes_test.ts"
   }
 }

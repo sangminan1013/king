@@ -165,13 +165,13 @@ class KingLocalizationsEn extends KingLocalizations {
 
   @override
   String get joinDescription =>
-      'Use the eight-character code shared by the host.';
+      'Enter the 4-character lowercase letter-and-number code shared by the host.';
 
   @override
   String get inviteCode => 'Invitation code';
 
   @override
-  String get inviteHint => 'e.g. KING-ABC';
+  String get inviteHint => 'e.g. ab7x';
 
   @override
   String get joining => 'Checking your invitation code…';
@@ -514,4 +514,7 @@ class KingLocalizationsEn extends KingLocalizations {
 
   @override
   String get tyrantSituations => 'Low-stakes or playful decisions';
+
+  @override
+  String get inviteCaseNotice => '4-character codes are not case-sensitive.';
 }

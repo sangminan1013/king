@@ -1,3 +1,4 @@
+import { normalizeInviteCode, randomInviteCode } from './invite_codes.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2.49.8'
 import { Hono } from 'npm:hono'
 import { cors } from 'npm:hono/cors'
@@ -179,15 +180,6 @@ const roomResponse = async (room: RoomRow, userId: string) => {
       opinions: verdict ? opinions.map((opinion) => opinion.content) : [],
     },
   }
-}
-
-const randomInviteCode = () => {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const suffix = Array.from(
-    { length: 3 },
-    () => alphabet[Math.floor(Math.random() * alphabet.length)],
-  ).join('')
-  return `KING-${suffix}`
 }
 
 const insertRoom = async (
@@ -423,7 +415,7 @@ app.post(`${basePath}/rooms/join`, async (c) => {
   if ('response' in auth) return auth.response
 
   const body = await c.req.json().catch(() => ({}))
-  const code = cleanText(body.code, 12).toUpperCase()
+  const code = normalizeInviteCode(cleanText(body.code, 12))
   const ownerToken = cleanText(body.ownerToken, 128)
   if (!code) return jsonError(c, 422, 'INVALID_CODE', '초대 코드를 입력해 주세요.')
 

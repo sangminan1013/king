@@ -65,9 +65,9 @@
   "yourPetition": "Your petition",
   "creating": "Convening the court…",
   "joinHeading": "Enter your invitation code",
-  "joinDescription": "Use the eight-character code shared by the host.",
+  "joinDescription": "Enter the 4-character lowercase letter-and-number code shared by the host.",
   "inviteCode": "Invitation code",
-  "inviteHint": "e.g. KING-ABC",
+  "inviteHint": "e.g. ab7x",
   "joining": "Checking your invitation code…",
   "joinPrivacy": "Your name and account details are private.",
   "copy": "Copy",
@@ -211,5 +211,6 @@
   "tyrantCharacter": "Grumbles, then decides quickly",
   "tyrantPriorities": "Looks for the simplest option the court can act on quickly.",
   "tyrantExample": "Enough fretting. This is what we shall do.",
-  "tyrantSituations": "Low-stakes or playful decisions"
+  "tyrantSituations": "Low-stakes or playful decisions",
+  "inviteCaseNotice": "4-character codes are not case-sensitive."
 }

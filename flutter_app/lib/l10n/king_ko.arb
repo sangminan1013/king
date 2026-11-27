@@ -44,9 +44,9 @@
   "yourPetition": "내 상소문",
   "creating": "어전을 여는 중…",
   "joinHeading": "초대 코드를 입력하세요",
-  "joinDescription": "방장이 공유한 8자리 코드를 사용하세요.",
+  "joinDescription": "방장이 공유한 영문 소문자·숫자 4자리 코드를 입력하세요.",
   "inviteCode": "초대 코드",
-  "inviteHint": "예: KING-ABC",
+  "inviteHint": "예: ab7x",
   "joining": "초대 코드를 확인하는 중…",
   "joinPrivacy": "별도의 이름이나 계정 정보는 표시되지 않습니다.",
   "copy": "복사",
@@ -145,5 +145,6 @@
   "tyrantCharacter": "투덜대지만 결단은 빠른 왕",
   "tyrantPriorities": "번거로운 일을 줄이고 빠르게 실행할 수 있는 선택을 택합니다.",
   "tyrantExample": "허, 고민은 여기까지다. 이쪽으로 가거라.",
-  "tyrantSituations": "가벼운 고민 · 장난스러운 결정"
+  "tyrantSituations": "가벼운 고민 · 장난스러운 결정",
+  "inviteCaseNotice": "4자리 코드는 대소문자 구분 없이 입력할 수 있어요."
 }
