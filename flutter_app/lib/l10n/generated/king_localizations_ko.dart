@@ -149,13 +149,13 @@ class KingLocalizationsKo extends KingLocalizations {
   String get joinHeading => '초대 코드를 입력하세요';
 
   @override
-  String get joinDescription => '방장이 공유한 8자리 코드를 사용하세요.';
+  String get joinDescription => '방장이 공유한 영문·숫자 6자리 코드를 입력하세요.';
 
   @override
   String get inviteCode => '초대 코드';
 
   @override
-  String get inviteHint => '예: KING-ABC';
+  String get inviteHint => '예: aB7xQ2';
 
   @override
   String get joining => '초대 코드를 확인하는 중…';
@@ -466,4 +466,7 @@ class KingLocalizationsKo extends KingLocalizations {
 
   @override
   String get tyrantSituations => '가벼운 고민 · 장난스러운 결정';
+
+  @override
+  String get inviteCaseNotice => '대소문자를 구분합니다. 표시된 코드를 그대로 입력하세요.';
 }

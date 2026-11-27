@@ -1,3 +1,4 @@
+import "../models/invite_code.dart";
 import "dart:convert";
 
 import "package:flutter_secure_storage/flutter_secure_storage.dart";
@@ -109,7 +110,7 @@ class KingApiService {
   }
 
   String _ownerTokenKey(String code) =>
-      "king.room-owner.${code.trim().toUpperCase()}";
+      "king.room-owner.${normalizeInviteCode(code)}";
 
   Future<RoomSnapshot> createRoom({
     required String groupName,
@@ -130,7 +131,7 @@ class KingApiService {
   }
 
   Future<RoomSnapshot> joinRoom(String code) async {
-    final normalizedCode = code.trim().toUpperCase();
+    final normalizedCode = normalizeInviteCode(code);
     final ownerToken = await _secureStorage.read(
       key: _ownerTokenKey(normalizedCode),
     );

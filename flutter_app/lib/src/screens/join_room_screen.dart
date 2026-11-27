@@ -59,8 +59,10 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
           const SizedBox(height: 8),
           TextField(
             autofocus: true,
-            maxLength: 8,
-            textCapitalization: TextCapitalization.characters,
+            maxLength: 12,
+            textCapitalization: TextCapitalization.none,
+            autocorrect: false,
+            enableSuggestions: false,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: KingColors.burgundyDark,
@@ -70,6 +72,9 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
             ),
             decoration: InputDecoration(
               hintText: l.inviteHint,
+              helperText: l.inviteCaseNotice,
+              helperMaxLines: 3,
+              counterText: "",
               hintStyle: const TextStyle(
                 color: KingColors.muted,
                 fontWeight: FontWeight.w400,

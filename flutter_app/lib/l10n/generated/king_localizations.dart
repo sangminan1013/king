@@ -365,7 +365,7 @@ abstract class KingLocalizations {
   /// No description provided for @joinDescription.
   ///
   /// In en, this message translates to:
-  /// **'Use the eight-character code shared by the host.'**
+  /// **'Enter the 6-character letter-and-number code shared by the host.'**
   String get joinDescription;
 
   /// No description provided for @inviteCode.
@@ -377,7 +377,7 @@ abstract class KingLocalizations {
   /// No description provided for @inviteHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. KING-ABC'**
+  /// **'e.g. aB7xQ2'**
   String get inviteHint;
 
   /// No description provided for @joining.
@@ -973,6 +973,12 @@ abstract class KingLocalizations {
   /// In en, this message translates to:
   /// **'Low-stakes or playful decisions'**
   String get tyrantSituations;
+
+  /// No description provided for @inviteCaseNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Codes are case-sensitive. Enter the code exactly as shown.'**
+  String get inviteCaseNotice;
 }
 
 class _KingLocalizationsDelegate
