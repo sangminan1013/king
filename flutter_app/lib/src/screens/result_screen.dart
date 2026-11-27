@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../models/ai_verdict.dart";
 import "../theme/king_theme.dart";
@@ -33,13 +35,13 @@ class _ResultScreenState extends State<ResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     final controller = widget.controller;
     return RoyalScaffold(
-      title: "AI의 평결",
-      kicker: "THE VERDICT",
+      title: l.verdict,
       child: controller.verdict == null
           ? _VerdictError(
-              message: "평결이 아직 준비되지 않았습니다. 대기 화면에서 제출 현황을 확인해 주세요.",
+              message: l.verdictUnavailable,
               onRetry: () => Navigator.of(context).maybePop(),
             )
           : _VerdictContent(
@@ -56,8 +58,9 @@ class _VerdictError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -72,7 +75,7 @@ class _VerdictError extends StatelessWidget {
             ),
             const SizedBox(height: 22),
             RoyalButton(
-              label: "돌아가기",
+              label: l.back,
               icon: Icons.refresh,
               onPressed: onRetry,
             ),
@@ -91,31 +94,31 @@ class _VerdictContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 40),
       children: [
-        const RoyalCrest(),
-        Kicker(controller.kingPersonality.label),
-        const SizedBox(height: 12),
-        Text(
-          verdict.title,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: KingColors.burgundyDark,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          verdict.summary,
-          textAlign: TextAlign.center,
-          style: KingTheme.decisionSummary,
-        ),
-        const SizedBox(height: 28),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(.25),
-            border: Border.all(color: const Color(0xFFAE9876)),
+        RoyalPanel(
+          style: RoyalPanelStyle.decree,
+          child: Column(
+            children: [
+              const RoyalCrest(small: true),
+              const SizedBox(height: 10),
+              Kicker(l.profile(controller.kingPersonality).name),
+              const SizedBox(height: 9),
+              Text(verdict.title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineLarge),
+              const SizedBox(height: 8),
+              Text(verdict.summary,
+                  textAlign: TextAlign.center,
+                  style: KingTheme.decisionSummary),
+            ],
           ),
+        ),
+        const SizedBox(height: 20),
+        RoyalPanel(
+          padding: EdgeInsets.zero,
           child: Column(
             children: [
               Container(
@@ -124,24 +127,26 @@ class _VerdictContent extends StatelessWidget {
                 color: KingColors.burgundyDark,
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        "평결의 근거",
-                        style: TextStyle(
-                          color: Color(0xFFF8EDDA),
+                        l.verdictReasons,
+                        style: const TextStyle(
+                          color: KingColors.paperLight,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    Text(
-                      "적합도 ${verdict.fitScore}%",
+                    const SizedBox(width: 8),
+                    Flexible(
+                        child: Text(
+                      l.fitScore(verdict.fitScore),
                       style: const TextStyle(
                         color: KingColors.goldLight,
-                        fontFamily: "sans-serif",
+                        fontFamily: KingTheme.sans,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),
@@ -155,58 +160,73 @@ class _VerdictContent extends StatelessWidget {
           children: [
             Expanded(
               child: RoyalButton(
-                label: "다른 안건 시작",
+                label: l.newDecision,
                 style: RoyalButtonStyle.secondary,
-                onPressed: controller.isSavingRecord ? null : () {
-                  controller.startAnotherDecision();
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute<void>(
-                      builder: (_) => CreateRoomScreen(controller: controller),
-                    ),
-                    (route) => route.isFirst,
-                  );
-                },
+                onPressed: controller.isSavingRecord
+                    ? null
+                    : () {
+                        controller.startAnotherDecision();
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                CreateRoomScreen(controller: controller),
+                          ),
+                          (route) => route.isFirst,
+                        );
+                      },
               ),
             ),
             const SizedBox(width: 9),
             Expanded(
               child: RoyalButton(
-                label: controller.isRecordSaved ? "최종 기록 보기"
-                    : controller.isSavingRecord ? "확정하는 중..." : "결정 확정하기",
-                onPressed: controller.isSavingRecord || (!controller.isOwner && !controller.isRecordSaved)
-                    ? null : () async {
-                  final confirmed = await controller.saveDecision();
-                  if (!context.mounted) return;
-                  if (!confirmed) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(controller.roomError ?? "결정을 확정하지 못했습니다.")));
-                    return;
-                  }
-                  Navigator.of(context).push(MaterialPageRoute<void>(
-                    builder: (_) => SummaryScreen(controller: controller)));
-                },
+                label: controller.isRecordSaved
+                    ? l.viewRecord
+                    : controller.isSavingRecord
+                        ? l.finalizing
+                        : l.finalize,
+                onPressed: controller.isSavingRecord ||
+                        (!controller.isOwner && !controller.isRecordSaved)
+                    ? null
+                    : () async {
+                        final confirmed = await controller.saveDecision();
+                        if (!context.mounted) return;
+                        if (!confirmed) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(l.errorMessage(
+                                  controller.roomError ?? l.finalizeError))));
+                          return;
+                        }
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                            builder: (_) =>
+                                SummaryScreen(controller: controller)));
+                      },
               ),
             ),
           ],
         ),
         if (!controller.isOwner && !controller.isRecordSaved) ...[
           const SizedBox(height: 12),
-          const Text("방장의 결정 확정을 기다리고 있습니다.", textAlign: TextAlign.center),
-          RoyalButton(label: "확정 상태 확인", style: RoyalButtonStyle.ghost,
-            onPressed: controller.isRoomBusy ? null : () async {
-              await controller.refreshRoom();
-              if (!context.mounted) return;
-              if (controller.isRecordSaved) {
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (_) => SummaryScreen(controller: controller)));
-              }
-            }),
+          Text(l.waitingHost, textAlign: TextAlign.center),
+          RoyalButton(
+              label: l.checkFinalization,
+              style: RoyalButtonStyle.ghost,
+              onPressed: controller.isRoomBusy
+                  ? null
+                  : () async {
+                      await controller.refreshRoom();
+                      if (!context.mounted) return;
+                      if (controller.isRecordSaved) {
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                            builder: (_) =>
+                                SummaryScreen(controller: controller)));
+                      }
+                    }),
         ],
         const SizedBox(height: 18),
         Text(
-          "AI의 평결은 참여자 의견을 바탕으로 한 제안이며, 중요한 결정은 함께 다시 검토해 주세요.",
+          l.reviewVerdict,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 8),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:king/l10n/generated/king_localizations.dart';
 import 'package:king/src/controller/king_controller.dart';
 import 'package:king/src/models/ai_verdict.dart';
 import 'package:king/src/models/room_list_entry.dart';
@@ -83,13 +84,16 @@ Future<void> showHome(WidgetTester tester, FakeApi api,
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(MaterialApp(
+    localizationsDelegates: KingLocalizations.localizationsDelegates,
+    supportedLocales: KingLocalizations.supportedLocales,
+    locale: const Locale('ko'),
     theme: KingTheme.light,
     home: HomeScreen(
         controller: KingController(api: api), onSignOut: () async {}),
   ));
   await tester.pumpAndSettle();
   if (openHistory) {
-    await tapVisible(tester, find.text('회의 기록'));
+    await tapVisible(tester, find.text('어전 기록'));
   }
 }
 
@@ -105,15 +109,15 @@ void main() {
       (tester) async {
     final api = FakeApi();
     await showHome(tester, api, openHistory: false);
-    expect(find.text('새로운 회의 열기'), findsOneWidget);
-    expect(find.text('초대 코드로 입장'), findsOneWidget);
+    expect(find.text('어전 개설'), findsOneWidget);
+    expect(find.text('어전 입장'), findsOneWidget);
     expect(find.byType(RoomHistoryScreen), findsNothing);
-    expect(find.text('내 회의'), findsNothing);
+    expect(find.text('내 어전'), findsNothing);
     expect(api.listCalls, 0);
-    await tapVisible(tester, find.text('회의 기록'));
+    await tapVisible(tester, find.text('어전 기록'));
     expect(find.byType(RoomHistoryScreen), findsOneWidget);
     expect(api.listCalls, 1);
-    expect(find.textContaining('아직 참여한 회의가 없어요'), findsOneWidget);
+    expect(find.textContaining('아직 참여한 어전이 없어요'), findsOneWidget);
     await tester.tap(find.byTooltip('뒤로 가기'));
     await tester.pumpAndSettle();
     expect(find.byType(RoomHistoryScreen), findsNothing);
@@ -149,7 +153,7 @@ void main() {
     await tapVisible(tester, find.text('회의 B'));
     expect(find.byType(SummaryScreen), findsOneWidget);
     expect(find.text('저장된 결정'), findsOneWidget);
-    expect(find.text('참여자 2명'), findsOneWidget);
+    expect(find.text('2명'), findsOneWidget);
     expect(api.verdictCalls, 0);
     expect(find.text('확정된 결정입니다.'), findsOneWidget);
     expect(find.text('기록 저장하기'), findsNothing);
@@ -167,9 +171,11 @@ void main() {
   testWidgets('older rooms are reachable using pagination', (tester) async {
     final api = FakeApi()..entries = List.generate(21, (i) => entry('$i'));
     await showHome(tester, api);
-    await tester.scrollUntilVisible(find.text('이전 회의 더 보기'), 500,
+    await tester.scrollUntilVisible(find.text('이전 어전 더 보기'), 500,
         maxScrolls: 30);
-    await tapVisible(tester, find.text('이전 회의 더 보기'));
+    await tester.drag(find.byType(ListView), const Offset(0, -140));
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('이전 어전 더 보기'));
     await tester.scrollUntilVisible(find.text('회의 20'), 200);
     expect(api.offsets, [0, 20]);
     expect(find.text('회의 20'), findsOneWidget);

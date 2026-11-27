@@ -39,7 +39,7 @@ class KingController extends ChangeNotifier {
   Future<bool> openRoom(String id) => _runRoomAction(() async {
         final snapshot = await _api.getRoom(id);
         if (snapshot.status == "finalized" && snapshot.verdict == null) {
-          throw const KingApiException("저장된 평결을 찾지 못했습니다.");
+          throw const KingApiException("ui:verdictMissing");
         }
         opinion = "";
         verdictError = null;
@@ -130,27 +130,27 @@ class KingController extends ChangeNotifier {
       if (roomId != id) return false;
       _apply(snapshot);
       if (roomStatus != "finalized" && !allOpinionsSubmitted) {
-        verdictError = "설정한 참여 인원 모두가 제출할 때까지 기다려 주세요.";
+        verdictError = "ui:verdictWait";
         return false;
       }
       if (verdict != null) return true;
       if (roomStatus == "finalized") {
-        verdictError = "저장된 평결을 찾지 못했습니다.";
+        verdictError = "ui:verdictMissing";
         return false;
       }
       final generated = await _api.generateVerdict(id);
       if (roomId != id) return false;
       _apply(generated);
       if (verdict == null) {
-        verdictError = "평결이 아직 준비되지 않았습니다. 다시 확인해 주세요.";
+        verdictError = "ui:verdictPending";
         return false;
       }
       return true;
     } on KingApiException catch (error) {
-      verdictError = error.message;
+      verdictError = error.displayKey ?? error.message;
       return false;
     } catch (_) {
-      verdictError = "AI 평결을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+      verdictError = "ui:verdictError";
       return false;
     } finally {
       isGeneratingVerdict = false;
@@ -172,14 +172,14 @@ class KingController extends ChangeNotifier {
       if (roomId != id) return false;
       _apply(snapshot);
       if (!isRecordSaved) {
-        roomError = "결정 확정 상태를 확인하지 못했습니다. 다시 시도해 주세요.";
+        roomError = "ui:finalizeUnconfirmed";
       }
       return isRecordSaved;
     } on KingApiException catch (error) {
-      roomError = error.message;
+      roomError = error.displayKey ?? error.message;
       return false;
     } catch (_) {
-      roomError = "결정을 확정하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.";
+      roomError = "ui:finalizeError";
       return false;
     } finally {
       isSavingRecord = false;
@@ -223,10 +223,10 @@ class KingController extends ChangeNotifier {
       await action();
       return true;
     } on KingApiException catch (error) {
-      roomError = error.message;
+      roomError = error.displayKey ?? error.message;
       return false;
     } catch (_) {
-      roomError = "서버에 연결하지 못했습니다. 네트워크 상태를 확인해 주세요.";
+      roomError = "ui:networkError";
       return false;
     } finally {
       isRoomBusy = false;

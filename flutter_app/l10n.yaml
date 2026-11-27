@@ -1,0 +1,6 @@
+arb-dir: lib/l10n
+template-arb-file: king_en.arb
+output-localization-file: king_localizations.dart
+output-class: KingLocalizations
+output-dir: lib/l10n/generated
+nullable-getter: false

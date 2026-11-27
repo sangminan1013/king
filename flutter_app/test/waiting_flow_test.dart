@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:king/l10n/generated/king_localizations.dart';
 import 'package:king/src/controller/king_controller.dart';
 import 'package:king/src/models/ai_verdict.dart';
 import 'package:king/src/screens/room_screen.dart';
@@ -7,6 +8,7 @@ import 'package:king/src/screens/create_room_screen.dart';
 import 'package:king/src/screens/waiting_screen.dart';
 import 'package:king/src/screens/result_screen.dart';
 import 'package:king/src/services/king_api_service.dart';
+import 'package:king/src/widgets/royal_widgets.dart';
 import 'package:king/src/theme/king_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -45,7 +47,12 @@ class WaitingApi extends KingApiService {
       );
 
   @override
-  Future<RoomSnapshot> createRoom({required String groupName, required String topic, required int memberLimit, String kingPersonality = "wise"}) async => current;
+  Future<RoomSnapshot> createRoom(
+          {required String groupName,
+          required String topic,
+          required int memberLimit,
+          String kingPersonality = "wise"}) async =>
+      current;
 
   @override
   Future<RoomSnapshot> getRoom(String roomId) async {
@@ -75,7 +82,12 @@ Future<void> show(WidgetTester tester, Widget screen) async {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(MaterialApp(theme: KingTheme.light, home: screen));
+  await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: KingLocalizations.localizationsDelegates,
+      supportedLocales: KingLocalizations.supportedLocales,
+      locale: const Locale('ko'),
+      theme: KingTheme.light,
+      home: screen));
   await tester.pumpAndSettle();
 }
 
@@ -86,19 +98,27 @@ Future<void> check(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('entering room from create screen does not notify during build', (tester) async {
-    final api = WaitingApi()..submitted = 0..hasSubmitted = false;
+  testWidgets('entering room from create screen does not notify during build',
+      (tester) async {
+    final api = WaitingApi()
+      ..submitted = 0
+      ..hasSubmitted = false;
     final controller = KingController(api: api);
     await controller.openRoom('room');
     await show(tester, CreateRoomScreen(controller: controller));
-    await tester.ensureVisible(find.text('회의 개설하기'));
-    await tester.tap(find.text('회의 개설하기'));
+    await tester.scrollUntilVisible(
+        find.widgetWithText(RoyalButton, '어전 개설'), 200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.drag(find.byType(ListView), const Offset(0, -150));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(RoyalButton, '어전 개설'));
     await tester.pumpAndSettle();
     expect(find.byType(RoomScreen), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('reentering a submitted room opens waiting and its ready result', (tester) async {
+  testWidgets('reentering a submitted room opens waiting and its ready result',
+      (tester) async {
     final api = WaitingApi()..submitted = 2;
     final controller = KingController(api: api);
     await controller.openRoom('room');
@@ -119,12 +139,13 @@ void main() {
     await tester.enterText(
         find.byType(TextField), '모두의 조건을 고려할 수 있는 충분히 긴 의견입니다.');
     await tester.pump();
-    await tester.ensureVisible(find.text('의견 봉인하기'));
-    await tester.tap(find.text('의견 봉인하기'));
+    await tester.scrollUntilVisible(find.text('상소문 올리기'), 180,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('상소문 올리기'));
     await tester.pumpAndSettle();
     expect(find.byType(WaitingScreen), findsOneWidget);
     expect(find.text('AI 평결 미리보기'), findsNothing);
-    expect(find.text('의견 제출 1 / 2명'), findsOneWidget);
+    expect(find.text('상소문 접수 1 / 2명'), findsOneWidget);
     expect(api.verdictRequests, 0);
   });
 

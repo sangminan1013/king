@@ -9,8 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_secure_storage: ^9.2.4
   http: ^1.2.2
+  intl: any
+  shared_preferences: ^2.5.6
   supabase_flutter: ^2.8.3
 
 dev_dependencies:
@@ -19,4 +23,16 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
+  generate: true
   uses-material-design: true
+  assets:
+    - assets/fonts/NotoSansKR-OFL.txt
+    - assets/fonts/NotoSerifKR-OFL.txt
+  fonts:
+    - family: CourtSerif
+      fonts:
+        - asset: assets/fonts/NotoSerifKR.ttf
+          weight: 700
+    - family: CourtSans
+      fonts:
+        - asset: assets/fonts/NotoSansKR.ttf

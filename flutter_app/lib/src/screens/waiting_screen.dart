@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
@@ -72,20 +74,20 @@ class _WaitingScreenState extends State<WaitingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     final controller = widget.controller;
     final error = controller.roomError ?? controller.verdictError;
     return RoyalScaffold(
-      title: "평결 대기",
-      kicker: "${controller.kingPersonality.label} · ${controller.roomCode}",
+      title: l.deliberation,
+      kicker:
+          "${l.profile(controller.kingPersonality).name} · ${controller.roomCode}",
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
         children: [
           const RoyalCrest(),
           const SizedBox(height: 20),
           Text(
-            controller.isGeneratingVerdict
-                ? "모두의 의견으로 평결을 준비하고 있습니다"
-                : "의견이 봉인되었습니다",
+            controller.isGeneratingVerdict ? l.deliberating : l.sealed,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
@@ -93,7 +95,8 @@ class _WaitingScreenState extends State<WaitingScreen> {
           Text(controller.topic, textAlign: TextAlign.center),
           const SizedBox(height: 24),
           Text(
-            "의견 제출 ${controller.submittedCount} / ${controller.memberLimit}명",
+            l.submissionStatus(
+                controller.submittedCount, controller.memberLimit),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium,
           ),
@@ -109,31 +112,45 @@ class _WaitingScreenState extends State<WaitingScreen> {
           const SizedBox(height: 16),
           Text(
             controller.allOpinionsSubmitted
-                ? "전원이 제출했습니다. 평결을 준비한 뒤 결과로 이동합니다."
-                : "설정한 ${controller.memberLimit}명 모두의 제출을 기다리고 있어요.\n전원이 제출하기 전에는 평결을 만들지 않습니다.",
+                ? l.allSubmitted
+                : l.waitingMembers(controller.memberLimit),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           if (checking) const Center(child: CircularProgressIndicator()),
           if (error != null && !checking) ...[
-            Text(error,
+            Text(l.errorMessage(error),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: KingColors.burgundy)),
             const SizedBox(height: 12),
           ],
           RoyalButton(
-            label: checking ? "확인하는 중..." : "제출 현황 확인",
+            label: checking ? l.checking : l.checkStatus,
             icon: Icons.refresh,
             onPressed: checking || leaving ? null : checkStatus,
           ),
           const SizedBox(height: 12),
           Text(
-            "현황 확인을 누르면 최신 제출 상태를 확인합니다.\n전원 제출이 확인되면 평결을 생성하고 결과로 이동해요.",
+            l.checkHelp,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 24),
           InviteCodeTile(code: controller.roomCode),
+          if (controller.hasSubmitted &&
+              controller.opinion.trim().isNotEmpty) ...[
+            const SizedBox(height: 16),
+            RoyalPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Kicker(l.yourPetition),
+                  const SizedBox(height: 8),
+                  SelectableText(controller.opinion.trim()),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

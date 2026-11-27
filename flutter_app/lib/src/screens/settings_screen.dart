@@ -1,48 +1,107 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+import "../language_preferences.dart";
+import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.onSignOut, super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({this.onSignOut, super.key});
 
-  final Future<void> Function() onSignOut;
+  final Future<void> Function()? onSignOut;
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool saving = false;
+
+  Future<void> selectLanguage(
+      LanguagePreferences languages, Locale? locale) async {
+    if (saving || locale == null || locale == languages.locale) return;
+    setState(() => saving = true);
+    try {
+      await languages.select(locale);
+    } on Exception {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.strings.languageSaveError)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
+    final languages = LanguageScope.of(context);
+    final text = Theme.of(context).textTheme;
+
     return RoyalScaffold(
-      title: "환경 설정",
-      kicker: "PREFERENCES",
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 65, 24, 40),
-        child: Column(
-          children: [
-            const RoyalCrest(),
-            const SizedBox(height: 14),
-            Text("곧 준비될 예정입니다", style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 8),
-            Text(
-              "알림, 언어, AI 평결 방식과\n개인정보 설정이 이곳에 추가됩니다.",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+      title: l.courtSettings,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 26, 24, 36),
+        children: [
+          RoyalPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: RoyalCrest(small: true),
+                ),
+                const SizedBox(height: 10),
+                Text(l.language, style: text.headlineLarge),
+                const SizedBox(height: 6),
+                Text(l.languageDescription, style: text.bodyMedium),
+                const SizedBox(height: 12),
+                RadioGroup<Locale>(
+                  groupValue: languages.locale,
+                  onChanged: (locale) => selectLanguage(languages, locale),
+                  child: Column(
+                    children: [
+                      RadioListTile<Locale>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l.english),
+                        value: const Locale("en"),
+                        enabled: !saving,
+                      ),
+                      const Divider(color: KingColors.subtleBorder, height: 1),
+                      RadioListTile<Locale>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l.korean),
+                        value: const Locale("ko"),
+                        enabled: !saving,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 30),
-            RoyalButton(
-              label: "첫 화면으로",
-              style: RoyalButtonStyle.secondary,
-              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            ),
+          ),
+          const SizedBox(height: 24),
+          RoyalButton(
+            label: l.home,
+            style: RoyalButtonStyle.secondary,
+            onPressed: () =>
+                Navigator.of(context).popUntil((route) => route.isFirst),
+          ),
+          if (widget.onSignOut case final signOut?) ...[
             const SizedBox(height: 10),
             RoyalButton(
-              label: "로그아웃",
+              label: l.signOut,
               icon: Icons.logout,
               style: RoyalButtonStyle.ghost,
               onPressed: () async {
                 Navigator.of(context).popUntil((route) => route.isFirst);
-                await onSignOut();
+                await signOut();
               },
             ),
           ],
-        ),
+        ],
       ),
     );
   }

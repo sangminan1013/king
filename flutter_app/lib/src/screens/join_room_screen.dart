@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../../l10n/strings.dart";
+
 import "../controller/king_controller.dart";
 import "../theme/king_theme.dart";
 import "../widgets/royal_widgets.dart";
@@ -33,27 +35,27 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.strings;
     return RoyalScaffold(
-      title: "회의 입장",
-      kicker: "ENTER THE CHAMBER",
+      title: l.enterCourt,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 65, 24, 40),
         children: [
           const RoyalCrest(),
           const SizedBox(height: 10),
           Text(
-            "초대장을 확인합니다",
+            l.joinHeading,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 6),
           Text(
-            "방장이 공유한 8자리 코드를 입력하세요.",
+            l.joinDescription,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 35),
-          Text("초대 코드", style: Theme.of(context).textTheme.labelLarge),
+          Text(l.inviteCode, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           TextField(
             autofocus: true,
@@ -66,10 +68,10 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               letterSpacing: 2,
               fontWeight: FontWeight.w700,
             ),
-            decoration: const InputDecoration(
-              hintText: "예: KING-ABC",
-              hintStyle: TextStyle(
-                color: Color(0xFFB5A999),
+            decoration: InputDecoration(
+              hintText: l.inviteHint,
+              hintStyle: const TextStyle(
+                color: KingColors.muted,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -77,14 +79,15 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
           ),
           const SizedBox(height: 18),
           RoyalButton(
-            label: widget.controller.isRoomBusy ? "초대장을 확인하는 중..." : "회의실 문 열기",
+            label: widget.controller.isRoomBusy ? l.joining : l.enterCourt,
             onPressed: code.trim().length >= 6 && !widget.controller.isRoomBusy
                 ? () async {
                     final joined = await widget.controller.joinRoom(code);
                     if (!context.mounted || !joined) return;
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => RoomScreen(controller: widget.controller),
+                        builder: (_) =>
+                            RoomScreen(controller: widget.controller),
                       ),
                     );
                   }
@@ -93,7 +96,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
           if (widget.controller.roomError != null) ...[
             const SizedBox(height: 12),
             Text(
-              widget.controller.roomError!,
+              l.errorMessage(widget.controller.roomError!),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: KingColors.burgundy,
@@ -102,7 +105,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          const PrivacyNote("별도의 이름이나 계정 정보는 표시되지 않습니다."),
+          PrivacyNote(l.joinPrivacy),
         ],
       ),
     );
