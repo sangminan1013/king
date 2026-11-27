@@ -5,16 +5,17 @@ const assert = (ok: unknown, message = 'Assertion failed') => {
   if (!ok) throw new Error(message)
 }
 
-Deno.test('short codes contain six unambiguous mixed-case letters and digits', () => {
+Deno.test('short codes contain four unambiguous lowercase letters and digits', () => {
   for (let i = 0; i < 300; i++) {
     const code = randomInviteCode()
-    assert(/^[A-HJ-NP-Za-km-np-z2-9]{6}$/.test(code), `Invalid code: ${code}`)
-    assert(/[A-Z]/.test(code) && /[a-z]/.test(code) && /[2-9]/.test(code))
+    assert(/^[a-km-np-z2-9]{4}$/.test(code), `Invalid code: ${code}`)
+    assert(/[a-z]/.test(code) && /[2-9]/.test(code))
     assert(!code.includes('-'))
   }
 })
 
-Deno.test('normalization preserves new code case and keeps legacy compatibility', () => {
+Deno.test('normalization lowercases four-character codes and preserves legacy formats', () => {
+  assert(normalizeInviteCode(' AB7X ') === 'ab7x')
   assert(normalizeInviteCode(' aB7xQ2 ') === 'aB7xQ2')
   assert(normalizeInviteCode('ab7xq2') !== normalizeInviteCode('aB7xQ2'))
   assert(normalizeInviteCode(' king-abc ') === 'KING-ABC')
@@ -79,7 +80,7 @@ Deno.test('room creation stores and returns a short code', async () => {
     assert(response.status === 201)
     const body = await response.json()
     assert(state.inserted.length === 1)
-    assert(body.room.code === state.inserted[0] && body.room.code.length === 6)
+    assert(body.room.code === state.inserted[0] && body.room.code.length === 4)
     assert(typeof body.ownerToken === 'string')
   })
 })
@@ -93,7 +94,7 @@ Deno.test('join preserves exact case in the database RPC', async () => {
   })
 })
 
-Deno.test('changing the case of a short code does not join the same room', async () => {
+Deno.test('previous six-character codes remain case-sensitive', async () => {
   await withRoom('aB7xQ2', async (_, request) => {
     assert((await request('rooms/join', { code: 'ab7xq2' })).status === 404)
   })
@@ -110,5 +111,14 @@ Deno.test('owner recovery looks up the mixed-case code without uppercasing it', 
   await withRoom('aB7xQ2', async (state, request) => {
     assert((await request('rooms/join', { code: 'aB7xQ2', ownerToken: 'device-token' })).status === 200)
     assert(state.requested[0] === 'aB7xQ2' && state.recovered)
+  })
+})
+
+Deno.test('four-character codes accept uppercase input and reuse lowercase recovery keys', async () => {
+  await withRoom('ab7x', async (state, request) => {
+    assert((await request('rooms/join', { code: 'AB7X' })).status === 200)
+    assert(state.requested[0] === 'ab7x')
+    assert((await request('rooms/join', { code: 'AB7X', ownerToken: 'device-token' })).status === 200)
+    assert(state.recovered)
   })
 })

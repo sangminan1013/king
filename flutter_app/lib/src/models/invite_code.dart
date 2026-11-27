@@ -1,7 +1,9 @@
 String normalizeInviteCode(String code) {
   final trimmed = code.trim();
-  // Keep the previous case-insensitive behavior only for legacy KING codes.
-  return RegExp(r'^KING-[A-Z0-9]{3}$', caseSensitive: false).hasMatch(trimmed)
-      ? trimmed.toUpperCase()
+  if (RegExp(r'^KING-[A-Z0-9]{3}$', caseSensitive: false).hasMatch(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  return RegExp(r'^[A-Z0-9]{4}$', caseSensitive: false).hasMatch(trimmed)
+      ? trimmed.toLowerCase()
       : trimmed;
 }

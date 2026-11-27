@@ -365,7 +365,7 @@ abstract class KingLocalizations {
   /// No description provided for @joinDescription.
   ///
   /// In en, this message translates to:
-  /// **'Enter the 6-character letter-and-number code shared by the host.'**
+  /// **'Enter the 4-character lowercase letter-and-number code shared by the host.'**
   String get joinDescription;
 
   /// No description provided for @inviteCode.
@@ -377,7 +377,7 @@ abstract class KingLocalizations {
   /// No description provided for @inviteHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. aB7xQ2'**
+  /// **'e.g. ab7x'**
   String get inviteHint;
 
   /// No description provided for @joining.
@@ -977,7 +977,7 @@ abstract class KingLocalizations {
   /// No description provided for @inviteCaseNotice.
   ///
   /// In en, this message translates to:
-  /// **'Codes are case-sensitive. Enter the code exactly as shown.'**
+  /// **'4-character codes are not case-sensitive.'**
   String get inviteCaseNotice;
 }
 

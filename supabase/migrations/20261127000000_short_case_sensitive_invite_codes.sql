@@ -1,8 +1,9 @@
--- Preserve existing rooms/codes. New codes are six case-sensitive letters/digits.
+-- Preserve existing rooms/codes. New codes are four lowercase letters/digits.
 -- Apply before deploying the updated server function.
 alter table public.rooms drop constraint if exists rooms_invite_code_check;
 alter table public.rooms add constraint rooms_invite_code_check check (
-  invite_code ~ '^[A-Za-z0-9]{6}$'
+  invite_code ~ '^[a-z0-9]{4}$'
+  or invite_code ~ '^[A-Za-z0-9]{6}$'
   or (invite_code = upper(invite_code) and char_length(invite_code) between 6 and 12)
 );
 
@@ -23,6 +24,8 @@ begin
 
   if normalized_code ~* '^KING-[A-Z0-9]{3}$' then
     normalized_code := upper(normalized_code);
+  elsif normalized_code ~* '^[a-z0-9]{4}$' then
+    normalized_code := lower(normalized_code);
   end if;
 
   select *

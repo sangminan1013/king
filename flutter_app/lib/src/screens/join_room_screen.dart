@@ -85,7 +85,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
           const SizedBox(height: 18),
           RoyalButton(
             label: widget.controller.isRoomBusy ? l.joining : l.enterCourt,
-            onPressed: code.trim().length >= 6 && !widget.controller.isRoomBusy
+            onPressed: code.trim().length >= 4 && !widget.controller.isRoomBusy
                 ? () async {
                     final joined = await widget.controller.joinRoom(code);
                     if (!context.mounted || !joined) return;

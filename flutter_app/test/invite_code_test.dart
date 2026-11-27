@@ -12,6 +12,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test('controller and API preserve code case and use separate recovery keys', () async {
     FlutterSecureStorage.setMockInitialValues({
+      'king.room-owner.ab7x': 'short-token',
       'king.room-owner.aB7xQ2': 'mixed-token',
       'king.room-owner.ab7xq2': 'lower-token',
       'king.room-owner.KING-ABC': 'legacy-token',
@@ -40,14 +41,19 @@ void main() {
     }));
     final controller = KingController(api: api);
     addTearDown(controller.dispose);
+    expect(await controller.joinRoom(' AB7X '), isTrue);
     expect(await controller.joinRoom(' aB7xQ2 '), isTrue);
     expect(await controller.joinRoom('ab7xq2'), isTrue);
     expect(await controller.joinRoom('king-abc'), isTrue);
-    expect(sent.map((r) => r['code']), ['aB7xQ2', 'ab7xq2', 'KING-ABC']);
-    expect(sent.map((r) => r['ownerToken']), ['mixed-token', 'lower-token', 'legacy-token']);
+    expect(sent.map((r) => r['code']), ['ab7x', 'aB7xQ2', 'ab7xq2', 'KING-ABC']);
+    expect(sent.map((r) => r['ownerToken']), ['short-token', 'mixed-token', 'lower-token', 'legacy-token']);
   });
 
-  test('short codes preserve case while trimming surrounding whitespace', () {
+  test('four-character codes accept uppercase input as lowercase', () {
+    expect(normalizeInviteCode(' AB7X '), 'ab7x');
+  });
+
+  test('six-character codes preserve case while trimming surrounding whitespace', () {
     expect(normalizeInviteCode(' aB7xQ2 '), 'aB7xQ2');
     expect(normalizeInviteCode('ab7xq2'), isNot(normalizeInviteCode('aB7xQ2')));
   });

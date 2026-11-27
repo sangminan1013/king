@@ -101,8 +101,8 @@ void main() {
       await show(JoinRoomScreen(controller: controller));
       await check("Enter your invitation code", "초대 코드를 입력하세요");
       await check("Invitation code", "초대 코드");
-      await check("Codes are case-sensitive. Enter the code exactly as shown.",
-          "대소문자를 구분합니다. 표시된 코드를 그대로 입력하세요.", scroll: true);
+      await check("4-character codes are not case-sensitive.",
+          "4자리 코드는 대소문자 구분 없이 입력할 수 있어요.", scroll: true);
       await show(RoomScreen(controller: controller));
       await check("Submit a Petition", "상소문 올리기", scroll: true);
       await show(WaitingScreen(controller: controller));
